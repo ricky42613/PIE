@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>for_FB</title>
+    <link rel="stylesheet" type="text/css" href="popup.css">
+    <script src="./jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Latest compiled JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style type="text/css">
+        body {
+            min-width: 650px;
+            /* your desired width */
+            max-width: 100%;
+            min-height: 100px;
+            max-height: 100%;
+            position: relative;
+        }
+        
+        #todo {
+            width: 450px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="navbar-brand">
+            <a id="home">
+                <img src="https://img.icons8.com/color/48/000000/home-buton--v2.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            </a>
+            <strong>URL List</strong>
+        </div>
+        <button class="btn btn-light" id="logout">Logout</button>
+    </nav>
+    <div class="form-group" id="page">
+        <form class="form-inline" style="margin-left:30px;">
+            <label>Page Link :</label>
+            <input style="margin-left:5px;margin-right:5px;" id="page_link" type="text">
+            <label>Link Count :</label>
+            <input style="margin-left:5px;margin-right:5px;" id="page_top_k" type="number" name="quantity" min="1" max="1000">
+            <button id="page_send" type="button" class="btn btn btn-primary">Send</button>
+        </form>
+    </div>
+    <div class="form-group" id="link">
+        <div class="custom-file" style="width:485px;margin-left:30px;margin-top:5px">
+            <input id="list_file" type="file" accept=".txt, .doc, .docx" class="custom-file-input">
+            <label class="custom-file-label" id="filename" for="customFile">Choose file</label>
+        </div>
+        <form class="form-inline">
+            <input type="text" class="form-control" placeholder="article link" name="task" style="width:450px;margin-left:30px;margin-top:5px;margin-right:5px">
+            <button id="add" type="button" class="btn btn btn-primary" style="margin-right:5px">Add</button>
+        </form>
+        <div style="margin:30px;height:200px;overflow-x:hidden;overflow-y:auto;border:2px #ccc solid;border-radius:10px;background-color:#eee;">
+            <ul id="todo">
+            </ul>
+        </div>
+        <form class="form-inline" style="margin-left:30px;">
+            <label>Task Name :</label>
+            <input style="margin-left:5px;margin-right:5px;" id="task_name" type="text">
+            <label>Top K :</label>
+            <input style="margin-left:5px;margin-right:5px;" id="top_k" type="number" name="quantity" min="1" max="1000">
+            <button id="send" type="button" class="btn btn btn-primary">Send</button>
+        </form>
+    </div>
+    <script src="fb_analy.js"></script>
+</body>
+
+</html>
