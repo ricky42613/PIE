@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict'
     //註解參考fb_post_wall
     let bkuplist = []
@@ -9,7 +9,7 @@
             type: 'save_data',
             data: data,
             db_name: 'fb_post'
-        }, function (r) {
+        }, function(r) {
             cb(r)
         })
     }
@@ -19,7 +19,7 @@
             ctx = canvas.getContext('2d'),
             img = new Image;
         img.crossOrigin = 'Anonymous'; //它开启了本地的跨域允许。当然服务器存储那边也要开放相应的权限才行，如果是设置了防盗链的图片在服务端就没有相应的权限的话你本地端开启了权限也是没有用的
-        img.onload = function () {
+        img.onload = function() {
             canvas.height = img.height;
             canvas.width = img.width;
             ctx.drawImage(img, 0, 0);
@@ -111,7 +111,7 @@
     }
 
     function getcomment(link) { //取得第一層留言列表
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             if (link.length) {
                 chrome.runtime.sendMessage({
                     type: 'send_req',
@@ -209,7 +209,7 @@
     }
 
     function getActionList(reaction_url, type, id) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             let url = reaction_url + '&limit=1000&reaction_type=' + type + '&total_count=28475'
             let newurl = url.replace("browser/", "browser/fetch")
             chrome.runtime.sendMessage({
@@ -266,14 +266,14 @@
         'Dec': '12',
     }
 
-    function handletime_en(str){
+    function handletime_en(str) {
         let time = new Date();
         var d2 = new Date(time);
         if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
             let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
             let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
             return time.getFullYear() + '' + m + '' + d + '000000'
-        } else if (str.indexOf("Monday") != -1||str.indexOf("Tuesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Wednesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Friday") != -1||str.indexOf("Saturday") != -1||str.indexOf("Sunday") != -1) { //ex 星期一 15:30
+        } else if (str.indexOf("Monday") != -1 || str.indexOf("Tuesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Wednesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Friday") != -1 || str.indexOf("Saturday") != -1 || str.indexOf("Sunday") != -1) { //ex 星期一 15:30
             let curweek = time.getDay()
             let week = str.split(" ")[0]
             let dif = curweek - my_week_table_en[week]
@@ -287,19 +287,22 @@
             let d = d2.getDate() < 10 ? '0' + d2.getDate() : '' + d2.getDate()
             return d2.getFullYear() + '' + m + '' + d + "000000"
         } else if (str.indexOf(',') != -1) { //ex 2015年8月30日
-            let year = str.slice(-4)
-            let month_idx = str.slice(0,3)
+            let y_start = str.indexOf(',') + 1
+            let year = str.slice(y_start, y_start + 4)
+            let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date =parseInt(str.slice(4))
-            if (date< 10) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return year + '' + month + '' + date + "000000"
         } else { //7月28日
             let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date = str.slice(4)
-            if (date.length < 2) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return d2.getFullYear() + '' + month + '' + date + "000000"
@@ -368,7 +371,7 @@
                 return
             } else {
                 let len = $(r).find("div[data-ft*='mf_story_key']").length
-                let articles = await $(r).find("div[data-ft*='mf_story_key']").map(async (idx, item) => {
+                let articles = await $(r).find("div[data-ft*='mf_story_key']").map(async(idx, item) => {
                     try {
                         let data = {}
                         data.nu_code = localStorage.getItem('nu_code')
@@ -386,13 +389,13 @@
                         }
                         let attachment = $(tmp)[0].parentNode.nextSibling.nextSibling
                         let ft_ent = JSON.parse($(item).attr('data-ft')).mf_story_key
-                        // let imgs = 
+                            // let imgs = 
                         $(item).find('a[href*="/photo"] img').map((idx, item) => {
                             let info = {}
                             info.src = item.src
                             info.articleID = ft_ent
                             info.type = "posts_img"
-                            convertImgToBase64(item.src, function (b64) {
+                            convertImgToBase64(item.src, function(b64) {
                                 info.img64 = b64
                                 save_data(info, r => {
                                     console.log(r)
@@ -470,7 +473,7 @@
                                     data.imgs = $(attach).find("img").map((i, subitem) => {
                                         let info = {}
                                         info.src = subitem.src
-                                        convertImgToBase64(item.src, function (b64) {
+                                        convertImgToBase64(item.src, function(b64) {
                                             info.img64 = b64
                                         })
                                         return info
@@ -492,7 +495,7 @@
                                                 info.imgs = $(attach).find("img").map((i, subitem) => {
                                                     let img_info = {}
                                                     img_info.src = subitem.src
-                                                    convertImgToBase64(subitem.src, function (b64) {
+                                                    convertImgToBase64(subitem.src, function(b64) {
                                                         img_info.img64 = b64
                                                     })
                                                     return img_info
@@ -557,7 +560,7 @@
         })
     }
 
-    window.addEventListener("load", async function (event) {
+    window.addEventListener("load", async function(event) {
         let c_user = getname('c_user')
         lang = $('html')[0].lang
         var buttonBarShadow = document.createElement('div')
@@ -566,19 +569,19 @@
         buttonBarShadow.setAttribute("style", "text-align:center;line-height:35px;position:fixed;top:3px;left:3px;z-index:9999999999;width:35px;height:35px;border-radius:999em;background-color:#429ef5;color:white")
         document.body.appendChild(buttonBarShadow)
         $('#bkup').draggable({
-            start: function (event, ui) {
+            start: function(event, ui) {
                 ui.helper.bind("click.prevent",
-                    function (event) {
+                    function(event) {
                         event.preventDefault();
                     });
             },
-            stop: function (event, ui) {
-                setTimeout(function () {
+            stop: function(event, ui) {
+                setTimeout(function() {
                     ui.helper.unbind("click.prevent");
                 }, 300);
             }
         })
-        $('#bkup').click(function (e) {
+        $('#bkup').click(function(e) {
             if (bkuplist.indexOf(window.location.href) == -1) {
                 bkuplist.push(window.location.href)
                 let url = window.location.href.replace("www", "mbasic")

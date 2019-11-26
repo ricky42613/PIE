@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
     let lang = ""
     let my_week_table = {
@@ -33,7 +33,7 @@
         'Nov': '11',
         'Dec': '12',
     }
-    
+
 
     function date2str(dy) {
         let y = dy.getFullYear() + ''
@@ -47,7 +47,7 @@
 
     function b64DecodeUnicode(str) { //decode base64
         // Going backwards: from bytestream, to percent-encoding, to original string.
-        return decodeURIComponent(atob(str).split('').map(function (c) {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     }
@@ -57,7 +57,7 @@
             type: 'save_data',
             data: data,
             db_name: 'fb_post'
-        }, function (r) {
+        }, function(r) {
             cb(r)
         })
     }
@@ -67,7 +67,7 @@
             ctx = canvas.getContext('2d'),
             img = new Image;
         img.crossOrigin = 'Anonymous'; //它开启了本地的跨域允许。当然服务器存储那边也要开放相应的权限才行，如果是设置了防盗链的图片在服务端就没有相应的权限的话你本地端开启了权限也是没有用的
-        img.onload = function () {
+        img.onload = function() {
             canvas.height = img.height;
             canvas.width = img.width;
             ctx.drawImage(img, 0, 0);
@@ -90,7 +90,7 @@
     };
 
     function getActionList(reaction_url, type) { // 取得各種情緒名單
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             let url = reaction_url + '&limit=1000&reaction_type=' + type + '&total_count=28475' //limit控制資料量、total_count必要欄位但不重要
             let newurl = url.replace("browser/", "browser/fetch")
             chrome.runtime.sendMessage({
@@ -164,7 +164,7 @@
     }
 
     function getcomment(link) { //取得第一層留言列表
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             if (link.length) {
                 chrome.runtime.sendMessage({
                     type: 'send_req',
@@ -284,14 +284,14 @@
         })
     }
 
-    function handletime_en(str){
+    function handletime_en(str) {
         let time = new Date();
         var d2 = new Date(time);
         if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
             let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
             let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
             return time.getFullYear() + '' + m + '' + d + '000000'
-        } else if (str.indexOf("Monday") != -1||str.indexOf("Tuesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Wednesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Friday") != -1||str.indexOf("Saturday") != -1||str.indexOf("Sunday") != -1) { //ex 星期一 15:30
+        } else if (str.indexOf("Monday") != -1 || str.indexOf("Tuesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Wednesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Friday") != -1 || str.indexOf("Saturday") != -1 || str.indexOf("Sunday") != -1) { //ex 星期一 15:30
             let curweek = time.getDay()
             let week = str.split(" ")[0]
             let dif = curweek - my_week_table_en[week]
@@ -305,19 +305,22 @@
             let d = d2.getDate() < 10 ? '0' + d2.getDate() : '' + d2.getDate()
             return d2.getFullYear() + '' + m + '' + d + "000000"
         } else if (str.indexOf(',') != -1) { //ex 2015年8月30日
-            let year = str.slice(-4)
-            let month_idx = str.slice(0,3)
+            let y_start = str.indexOf(',') + 1
+            let year = str.slice(y_start, y_start + 4)
+            let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date =parseInt(str.slice(4))
-            if (date< 10) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return year + '' + month + '' + date + "000000"
         } else { //7月28日
             let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date = str.slice(4)
-            if (date.length < 2) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return d2.getFullYear() + '' + month + '' + date + "000000"
@@ -492,32 +495,32 @@
                 }
             })
             element.find('._3x-2 img').map((idx, item) => {
-                let info = {}
-                info.src = item.src
-                info.articleID = data.articleID
-                info.type = "posts_img"
-                convertImgToBase64(item.src, function (base64Img) {
-                    info.img64 = base64Img
-                    console.log(info)
-                    save_data(info, r => {
-                        console.log(r)
+                    let info = {}
+                    info.src = item.src
+                    info.articleID = data.articleID
+                    info.type = "posts_img"
+                    convertImgToBase64(item.src, function(base64Img) {
+                        info.img64 = base64Img
+                        console.log(info)
+                        save_data(info, r => {
+                            console.log(r)
+                        })
                     })
-                })
-            }).get() //handle normal image
+                }).get() //handle normal image
 
             element.find('._3chq').map((idx, item) => {
-                let info = {}
-                info.src = item.src
-                info.articleID = data.articleID
-                info.type = "posts_img"
-                convertImgToBase64(item.src, function (base64Img) {
-                    info.img64 = base64Img
-                    console.log(info)
-                    save_data(info, r => {
-                        console.log(r)
+                    let info = {}
+                    info.src = item.src
+                    info.articleID = data.articleID
+                    info.type = "posts_img"
+                    convertImgToBase64(item.src, function(base64Img) {
+                        info.img64 = base64Img
+                        console.log(info)
+                        save_data(info, r => {
+                            console.log(r)
+                        })
                     })
-                })
-            }).get() //handle video image
+                }).get() //handle video image
             data.type = "posts"
             if (element.find('._5r69').length) {
                 //share
@@ -546,25 +549,25 @@
                 data.news_href = element.find('._3ekx')[0].lastChild.href
             }
             get_reaciton_cnt(reaction_url, (infolist) => {
-                infolist.map((item, idx) => {
-                    if (item.type == 0) {
-                        data.total_reactions = item.cnt
-                    } else if (item.type == 1) { //1:讚
-                        data.like_cnt = item.cnt
-                    } else if (item.type == 2) { //2:愛心
-                        data.heart_cnt = item.cnt
-                    } else if (item.type == 3) { //3:哇
-                        data.suprise_cnt = item.cnt
-                    } else if (item.type == 4) { //4:哈
-                        data.laugh_cnt = item.cnt
-                    } else if (item.type == 7) { //7:嗚
-                        data.sad_cnt = item.cnt
-                    } else if (item.type == 8) { //8:怒
-                        data.angry_cnt = item.cnt
-                    }
+                    infolist.map((item, idx) => {
+                        if (item.type == 0) {
+                            data.total_reactions = item.cnt
+                        } else if (item.type == 1) { //1:讚
+                            data.like_cnt = item.cnt
+                        } else if (item.type == 2) { //2:愛心
+                            data.heart_cnt = item.cnt
+                        } else if (item.type == 3) { //3:哇
+                            data.suprise_cnt = item.cnt
+                        } else if (item.type == 4) { //4:哈
+                            data.laugh_cnt = item.cnt
+                        } else if (item.type == 7) { //7:嗚
+                            data.sad_cnt = item.cnt
+                        } else if (item.type == 8) { //8:怒
+                            data.angry_cnt = item.cnt
+                        }
+                    })
                 })
-            })
-            //各情緒名單
+                //各情緒名單
             data.like_list = await getActionList(reaction_url, 1)
             data.heart_list = await getActionList(reaction_url, 2)
             data.suprise_list = await getActionList(reaction_url, 3)
@@ -652,7 +655,7 @@
         }
     }
 
-    window.addEventListener("load", function (event) {
+    window.addEventListener("load", function(event) {
         lang = $('html')[0].lang
         let cur_url = window.location.href
         let idx = 0
@@ -667,7 +670,7 @@
                 })
             })
         }
-        $("body").bind('DOMNodeInserted', function (ev) {
+        $("body").bind('DOMNodeInserted', function(ev) {
             if ($(ev.target)[0].nodeName == 'LI' && $(ev.target).find("[data-testid='UFI2Comment/root_depth_0']").length != 0) {
                 let cmt = ev.target
                 let subdata = handle_cmt(cmt)
@@ -703,7 +706,7 @@
                 } else {
                     time = 10000
                 }
-                setTimeout(function () {
+                setTimeout(function() {
                     let articles = $('.userContentWrapper')
                     idx = articles.length
                     for (let i = 0; i < articles.length; i++) {
@@ -718,7 +721,7 @@
             }
             if (ev.target.id != undefined) { //社團
                 if (ev.target.id.indexOf('jumper_') != -1 || ev.target.id.indexOf('mall_post_') != -1) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         let articles = $(ev.target).find('.userContentWrapper')
                         get_post(articles.eq(0), c_user, (data) => {
                             console.log(data)
@@ -731,7 +734,7 @@
             }
             if (ev.target.className != undefined) { //個人頁面、粉專
                 if (ev.target.className.indexOf('_1xnd') != -1) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         let articles = $(ev.target).find('.userContentWrapper')
                         for (let i = 0; i < articles.length; i++) {
                             get_post(articles.eq(i), c_user, (data) => {
@@ -746,12 +749,12 @@
             }
         })
         if ($("#ariaPoliteAlert").length == 0) {
-            $("body").bind('DOMNodeInserted', function (ev) {
+            $("body").bind('DOMNodeInserted', function(ev) {
                 var loadflag = $("body").find("#ariaPoliteAlert")
                 if (loadflag) {
-                    $("#ariaPoliteAlert").bind('DOMNodeInserted', function (e) {
-                        if (e.target.innerText.indexOf("載入") != -1||e.target.innerText.indexOf("requested")!=-1) {
-                            setTimeout(function () {
+                    $("#ariaPoliteAlert").bind('DOMNodeInserted', function(e) {
+                        if (e.target.innerText.indexOf("載入") != -1 || e.target.innerText.indexOf("requested") != -1) {
+                            setTimeout(function() {
                                 let tmp = idx
                                 let articles = $('.userContentWrapper')
                                 idx = articles.length
@@ -769,9 +772,9 @@
                 }
             });
         } else {
-            $("#ariaPoliteAlert").bind('DOMNodeInserted', function (e) {
-                if (e.target.innerText.indexOf("載入") != -1||e.target.innerText.indexOf("requested")!=-1) {
-                    setTimeout(function () {
+            $("#ariaPoliteAlert").bind('DOMNodeInserted', function(e) {
+                if (e.target.innerText.indexOf("載入") != -1 || e.target.innerText.indexOf("requested") != -1) {
+                    setTimeout(function() {
                         let tmp = idx
                         let articles = $('.userContentWrapper')
                         idx = articles.length

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
     var idstart = document.cookie.indexOf("c_user=")
     var tmp1 = document.cookie.slice(idstart + 7)
@@ -10,7 +10,7 @@
             type: 'save_data',
             data: data,
             db_name: 'fbmsg'
-        }, function (r) {
+        }, function(r) {
             cb(r)
         })
     }
@@ -29,7 +29,9 @@
         let q = "@user_id:=" + user_id + ",@friend_id:=" + friend_id + ",@type:=timerecord"
         chrome.runtime.sendMessage({
             type: 'query_nudb',
-            query: q
+            query: q,
+            db: 'fbmsg',
+            and_match: 1
         }, rst => {
             console.log(rst.result)
             cb(rst.result.recs[0].rec.timestamp)
@@ -52,7 +54,9 @@
         let q = "@user_id:=" + user_id + ",@friend_id:=" + friend_id + ",@type:=timerecord"
         chrome.runtime.sendMessage({ //取得最後訊息的時間
             type: 'query_nudb',
-            query: q
+            query: q,
+            db: 'fbmsg',
+            and_match: 1
         }, rst => {
             if (rst.result.cnt) {
                 let newtime = parseInt(timestamp) //新訊息的時間
@@ -70,7 +74,9 @@
         let q = "@user_id:=" + user_id + ",@friend_id:=" + friend_id + ",@type:=timerecord"
         chrome.runtime.sendMessage({
             type: 'query_nudb',
-            query: q
+            query: q,
+            db: 'fbmsg',
+            and_match: 1
         }, r => {
             console.log(r)
             cb(r.result.cnt)
@@ -278,7 +284,7 @@
     }
 
     function handle_member_item(href, user_id) { //取得群組成員
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             if (href.indexOf("?id=") != -1) {
                 let start = href.indexOf("?id=")
                 let end = href.indexOf("&")
@@ -328,9 +334,9 @@
             })
         })
     }
-    window.addEventListener("load", function (event) {
+    window.addEventListener("load", function(event) {
         if ($('._59v1').length) {
-            $('._59v1').bind('DOMNodeInserted', function (e) {
+            $('._59v1').bind('DOMNodeInserted', function(e) {
                 if ($(e.target).attr('class') != undefined) {
                     if ($(e.target).attr('class').indexOf("fantaTabMain-user:") != -1 || $(e.target).attr('class').indexOf("fantaTabMain-thread:") != -1) {
                         let type = $(e.target).attr('class').indexOf("fantaTabMain-thread:") != -1 ? 1 : 0
@@ -380,7 +386,7 @@
                 }
             })
         } else {
-            $('#ChatTabsPagelet .fbNubGroup .fbNubGroup').bind('DOMNodeInserted', function (e) {
+            $('#ChatTabsPagelet .fbNubGroup .fbNubGroup').bind('DOMNodeInserted', function(e) {
                 if ($('._5qi9').length) {
                     if ($(e.target).attr('class') != undefined) {
                         if ($(e.target).attr('class').indexOf("fantaTabMain-user:") != -1 || $(e.target).attr('class').indexOf("fantaTabMain-thread:") != -1) {
@@ -432,7 +438,7 @@
                 }
             })
         }
-        $('body').bind("DOMNodeInserted", function (e) {
+        $('body').bind("DOMNodeInserted", function(e) {
             try {
                 if ($(e.target)[0].className.indexOf('newdata') != -1) {
                     let data = JSON.parse($(e.target)[0].innerText)
@@ -448,7 +454,7 @@
             }
         })
     })
-    var scriptString = function () { //websocket logger
+    var scriptString = function() { //websocket logger
         if (window.Proxy == undefined) return;
         var oldWS = window.WebSocket;
         var loggerIncrement = 1;
@@ -494,10 +500,10 @@
         }
 
         var proxyDesc = {
-            set: function (target, prop, val) {
+            set: function(target, prop, val) {
                 if (prop == 'onmessage') { //收到訊息時
                     var oldMessage = val;
-                    val = function (e) {
+                    val = function(e) {
                         let arr = new Uint8Array(e.data)
                         let datastr = Utf8ArrayToStr(arr)
                         let start = datastr.indexOf("deltas")
@@ -582,9 +588,9 @@
                 }
                 return target[prop] = val;
             },
-            get: function (target, prop) {
+            get: function(target, prop) {
                 var val = target[prop];
-                if (prop == 'send') val = function (data) {
+                if (prop == 'send') val = function(data) {
                     target.send(data);
                 };
                 else if (typeof val == 'function') val = val.bind(target);
@@ -592,7 +598,7 @@
             }
         };
         WebSocket = new Proxy(oldWS, {
-            construct: function (target, args, newTarget) {
+            construct: function(target, args, newTarget) {
                 var obj = new target(args[0]);
                 obj.WSLoggerId = loggerIncrement++;
                 return new Proxy(obj, proxyDesc);
@@ -600,7 +606,7 @@
         });
     }
 
-    var observer = new MutationObserver(async function () {
+    var observer = new MutationObserver(async function() {
         if (document.head) {
             observer.disconnect();
             var script = document.createElement('script');

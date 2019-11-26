@@ -1,40 +1,39 @@
 {
-  "name": "PIE",
-  "version": "1.0",
-  "description": "save data to nu_cloud&nudb",
-  "permissions": ["bookmarks","activeTab", "cookies","http://*/","https://*/","notifications","http://*/","https://*/", "storage","tabs","contextMenus","<all_urls>", "debugger"],
-  "options_page": "options.html",
-  "background": {
-    "scripts": ["./background/background.js","./background/contextmenu.js","./background/cors_req.js","./jquery-3.3.1.min.js","./js/lz-string.js","./js/md5.js","./js/webtoolkit.js"],
-    "persistent": true
-  },
-  "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://maxcdn.bootstrapcdn.com; object-src 'self'",
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "./popup.js",
-        "./js/html2canvas.js",
-        "./login.js"
-      ]
-    }
-  ],
-  "browser_action": {
-    "default_popup": "login.html",
-    "default_icon": {
-      "16": "images/get_started16.png",
-      "32": "images/get_started32.png",
-      "48": "images/get_started48.png",
-      "128": "images/get_started128.png"
-    }
-  },
-  "icons": {
-    "16": "images/get_started16.png",
-    "32": "images/get_started32.png",
-    "48": "images/get_started48.png",
-    "128": "images/get_started128.png"
-  },
-  "manifest_version": 2
+    "name": "PIE",
+    "version": "1.0",
+    "description": "save data to nu_cloud&nudb",
+    "permissions": ["management", "topSites", "bookmarks", "activeTab", "cookies", "notifications", "storage", "tabs", "contextMenus", "debugger", "<all_urls>"],
+    "options_page": "options.html",
+    "background": {
+        "scripts": ["./background/background.js", "./background/contextmenu.js", "./background/cors_req.js", "./jquery-3.3.1.min.js", "./js/lz-string.js", "./js/md5.js", "./js/webtoolkit.js"],
+        "persistent": true
+    },
+    "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://maxcdn.bootstrapcdn.com; object-src 'self'",
+    "chrome_url_overrides": {
+        "newtab": "./newtab/index.html"
+    },
+    "content_scripts": [{
+        "matches": [
+            "<all_urls>"
+        ],
+        "js": [
+            "./js/html2canvas.js"
+        ]
+    }],
+    "browser_action": {
+        "default_popup": "login.html",
+        "default_icon": {
+            "16": "images/get_started16.png",
+            "32": "images/get_started32.png",
+            "48": "images/get_started48.png",
+            "128": "images/get_started128.png"
+        }
+    },
+    "icons": {
+        "16": "images/get_started16.png",
+        "32": "images/get_started32.png",
+        "48": "images/get_started48.png",
+        "128": "images/get_started128.png"
+    },
+    "manifest_version": 2
 }

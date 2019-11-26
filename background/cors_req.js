@@ -260,11 +260,12 @@ function handletime_en(str) {
     let time = new Date();
     var d2 = new Date(time);
     let check = str.split(" ")[0].slice(0, 3)
-    if (my_month_table[check] != undefined) {
-        let d = str.split(" ")[1]
-        let m = my_month_table[check]
-        return time.getFullYear() + '' + m + '' + d + '000000'
-    } else if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
+        // if (my_month_table[check] != undefined) {
+        //     let d = str.split(" ")[1]
+        //     let m = my_month_table[check]
+        //     return time.getFullYear() + '' + m + '' + d + '000000'
+        // } else
+    if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
         let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
         let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
         return time.getFullYear() + '' + m + '' + d + '000000'
@@ -282,10 +283,12 @@ function handletime_en(str) {
         let d = d2.getDate() < 10 ? '0' + d2.getDate() : '' + d2.getDate()
         return d2.getFullYear() + '' + m + '' + d + "000000"
     } else if (str.indexOf(',') != -1) { //ex 2015年8月30日
-        let year = str.slice(-4)
+        let y_start = str.indexOf(',') + 1
+        let year = str.slice(y_start, y_start + 4)
         let month_idx = str.slice(0, 3)
         let month = my_month_table[month_idx]
-        let date = parseInt(str.slice(4))
+        let d_start = str.indexOf(" ")
+        let date = parseInt(str.slice(d_start + 1))
         if (date < 10) {
             date = '0' + date
         }
@@ -293,8 +296,9 @@ function handletime_en(str) {
     } else { //7月28日
         let month_idx = str.slice(0, 3)
         let month = my_month_table[month_idx]
-        let date = str.slice(4)
-        if (date.length < 2) {
+        let d_start = str.indexOf(" ")
+        let date = parseInt(str.slice(d_start + 1))
+        if (date < 10) {
             date = '0' + date
         }
         return d2.getFullYear() + '' + month + '' + date + "000000"
@@ -627,10 +631,23 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
         $.get('http://' + domain + '/Site_Prog/API/plugin_api.php?mode=get_url', function(r) {
             let addr = r.url + 'Site_Prog/API/plugin_api.php'
             let arg = {
-                db_name: 'fbmsg',
+                db_name: request.db,
                 nu_code: nu_code,
                 q: request.query,
-                matchmode: 'AndMatch'
+            }
+            if (request.and_match == 1) {
+                arg.matchmode = 'AndMatch'
+            } else if (request.and_match == 0) {
+                arg.matchmode = 'OrMatch'
+            }
+
+            if (request.db != 'fbmsg') {
+                arg.p = request.p
+                arg.ps = request.ps
+            }
+            if (request.db == 'fb_post') {
+                arg.pat = '@type:posts'
+                arg.onlyfield = '@articleID:'
             }
             let str = JSON.stringify(arg)
             $.ajax({

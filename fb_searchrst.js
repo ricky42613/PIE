@@ -1,11 +1,12 @@
-(function () {
+(function() {
     let lang = ""
+
     function save_data(data, cb) {
         chrome.runtime.sendMessage({
             type: 'save_data',
             data: data,
             db_name: 'fb_post'
-        }, function (r) {
+        }, function(r) {
             cb(r)
         })
     }
@@ -19,7 +20,7 @@
     }
 
     function get_reaciton_cnt(url) { //取得各情緒數量
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             if (url.length) {
                 chrome.runtime.sendMessage({
                     type: 'send_req',
@@ -59,7 +60,7 @@
             ctx = canvas.getContext('2d'),
             img = new Image;
         img.crossOrigin = 'Anonymous';
-        img.onload = function () {
+        img.onload = function() {
             canvas.height = img.height;
             canvas.width = img.width;
             ctx.drawImage(img, 0, 0);
@@ -83,7 +84,7 @@
             data.content = $(item).find('._6roz').lenght == 0 ? "" : $(item).find('._6roz')[0].innerText
             data.from = $(item).find('._6ro- div').length == 0 ? "" : $(item).find('._6ro- div')[0].innerText
             data.photo = $(item).find('._6rou img').length == 0 ? "" : $(item).find('._6rou img')[0].src
-            convertImgToBase64(data.src, function (base64Img) {
+            convertImgToBase64(data.src, function(base64Img) {
                 data.img64 = base64Img
             });
             return data
@@ -101,7 +102,7 @@
         data.information = $(element).find('._1o90').length > 1 ? $(element).find('._1o90')[1].innerText : ""
         data.star = $(element).find("._672g")[0].innerText
         data.photo = $(element).find("._6hre")[0].src
-        convertImgToBase64(data.src, function (base64Img) {
+        convertImgToBase64(data.src, function(base64Img) {
             data.logo_img64 = base64Img
         });
         return data
@@ -114,7 +115,7 @@
             data.type = type //ex people、page、group....
             data.link = $(item).find("._2ial")[0].href
             data.photo = $(item).find("._2ial img")[0].src
-            convertImgToBase64(data.src, function (base64Img) {
+            convertImgToBase64(data.src, function(base64Img) {
                 data.img64 = base64Img
             });
             data.description = $(item).find('._glo')[0].innerText
@@ -163,14 +164,14 @@
         'Dec': '12',
     }
 
-    function handletime_en(str){
+    function handletime_en(str) {
         let time = new Date();
         var d2 = new Date(time);
         if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
             let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
             let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
             return time.getFullYear() + '' + m + '' + d + '000000'
-        } else if (str.indexOf("Monday") != -1||str.indexOf("Tuesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Wednesday") != -1||str.indexOf("Thursday") != -1||str.indexOf("Friday") != -1||str.indexOf("Saturday") != -1||str.indexOf("Sunday") != -1) { //ex 星期一 15:30
+        } else if (str.indexOf("Monday") != -1 || str.indexOf("Tuesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Wednesday") != -1 || str.indexOf("Thursday") != -1 || str.indexOf("Friday") != -1 || str.indexOf("Saturday") != -1 || str.indexOf("Sunday") != -1) { //ex 星期一 15:30
             let curweek = time.getDay()
             let week = str.split(" ")[0]
             let dif = curweek - my_week_table_en[week]
@@ -183,20 +184,23 @@
             let m = d2.getMonth() + 1 < 10 ? '0' + (d2.getMonth() + 1) : '' + (d2.getMonth() + 1)
             let d = d2.getDate() < 10 ? '0' + d2.getDate() : '' + d2.getDate()
             return d2.getFullYear() + '' + m + '' + d + "000000"
-        } else if (str.indexOf(',') != -1) { //ex 2015年8月30日
-            let year = str.slice(-4)
-            let month_idx = str.slice(0,3)
+        } else if (str.indexOf(',') != -1) { //ex January 8, 2012 at 10:41 PM
+            let y_start = str.indexOf(',') + 2
+            let year = str.slice(y_start, y_start + 4)
+            let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date =parseInt(str.slice(4))
-            if (date< 10) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return year + '' + month + '' + date + "000000"
         } else { //7月28日
             let month_idx = str.slice(0, 3)
             let month = my_month_table[month_idx]
-            let date = str.slice(4)
-            if (date.length < 2) {
+            let d_start = str.indexOf(" ")
+            let date = parseInt(str.slice(d_start + 1))
+            if (date < 10) {
                 date = '0' + date
             }
             return d2.getFullYear() + '' + month + '' + date + "000000"
@@ -255,13 +259,13 @@
 
     function b64DecodeUnicode(str) {
         // Going backwards: from bytestream, to percent-encoding, to original string.
-        return decodeURIComponent(atob(str).split('').map(function (c) {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     }
 
     function method_for_post(list, type, cb) {
-        Promise.all(list.map(async (idx, item) => {
+        Promise.all(list.map(async(idx, item) => {
             let data = {}
             let reaction_url = $(item).find('._3dlf').length == 0 ? "" : $(item).find('._3dlf')[0].href
             let reaction_info = await get_reaciton_cnt(reaction_url)
@@ -352,20 +356,20 @@
         let newlist = method_for_links(body)
         cb(newlist)
     }
-    window.addEventListener("load", function (event) {
+    window.addEventListener("load", function(event) {
         lang = $('html')[0].lang
         let type = get_curtype()
         if (type == "people" || type == "pages" || type == "groups" || type == "events" || type == "apps") {
             get_init(type, (list) => {
                 console.log(list)
-                save_data(list, function (r) {
+                save_data(list, function(r) {
                     console.log(r)
                 })
             })
         } else if (type == "posts") {
             get_init_for_post(type, (list) => {
                 console.log(list)
-                save_data(list, function (r) {
+                save_data(list, function(r) {
                     console.log(r)
                 })
             })
@@ -375,41 +379,41 @@
                 return data
             }).get()
             console.log(place_list)
-            save_data(place_list, function (r) {
+            save_data(place_list, function(r) {
                 console.log(r)
             })
         } else if (type == "links") {
             get_init_links((list) => {
                 console.log(list)
-                save_data(list, function (r) {
+                save_data(list, function(r) {
                     console.log(r)
                 })
             })
         }
 
         if (type != "places") {
-            $("._58b7").bind('DOMNodeInserted', function (ev) { //init
+            $("._58b7").bind('DOMNodeInserted', function(ev) { //init
                 let element = $(ev.target)[0]
                 if ($(element)[0].parentNode.id.indexOf("fbBrowseScrollingPagerContainer") != -1) {
                     let newid = $(element)[0].parentNode.id
                     if (type == "people" || type == "pages" || type == "groups" || type == "events" || type == "apps") {
                         getloadlist(newid, type, (list) => {
                             console.log(list)
-                            save_data(list, function (r) {
+                            save_data(list, function(r) {
                                 console.log(r)
                             })
                         })
                     } else if (type == "posts") {
                         get_loading_for_post(newid, type, (list) => {
                             console.log(list)
-                            save_data(list, function (r) {
+                            save_data(list, function(r) {
                                 console.log(r)
                             })
                         })
                     } else if (type == "links") {
                         getloading_links(newid, (list) => {
                             console.log(list)
-                            save_data(list, function (r) {
+                            save_data(list, function(r) {
                                 console.log(r)
                             })
                         })
@@ -417,21 +421,21 @@
                 }
             })
         } else {
-            $('ul[data-bt*="main_column"]').bind('DOMNodeInserted', function (ev) {
+            $('ul[data-bt*="main_column"]').bind('DOMNodeInserted', function(ev) {
                 if ($(ev.target)[0].classList.value.indexOf("_672g") != -1) {
                     let element = $(ev.target)[0].parentNode.parentNode.parentNode
                     let list = method_for_location(element)
                     console.log(list)
-                    save_data(list, function (r) {
+                    save_data(list, function(r) {
                         console.log(r)
                     })
                 }
             })
         }
-        $("#content").bind('DOMNodeInserted', function (e) { //change class
+        $("#content").bind('DOMNodeInserted', function(e) { //change class
             if (get_curtype() != 'places') {
                 if ($(e.target).find("._58b7").length) {
-                    $("._58b7").bind('DOMNodeInserted', function (ev) {
+                    $("._58b7").bind('DOMNodeInserted', function(ev) {
                         type = get_curtype()
                         let check = $(ev.target)[0].parentNode.parentNode
                         if ($(ev.target)[0].parentNode.id.indexOf("fbBrowseScrollingPagerContainer") != -1) {
@@ -439,21 +443,21 @@
                             if (type == "people" || type == "pages" || type == "groups" || type == "events" || type == "apps") {
                                 getloadlist(newid, type, (list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
                             } else if (type == "posts") {
                                 get_loading_for_post(newid, type, (list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
                             } else if (type == "links") {
                                 getloading_links(newid, (list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
@@ -462,21 +466,21 @@
                             if (type == "people" || type == "pages" || type == "groups" || type == "events" || type == "apps") {
                                 get_init(type, (list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
                             } else if (type == "posts") {
                                 get_init_for_post(type, (list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
                             } else if (type == "links") {
                                 get_init_links((list) => {
                                     console.log(list)
-                                    save_data(list, function (r) {
+                                    save_data(list, function(r) {
                                         console.log(r)
                                     })
                                 })
@@ -491,7 +495,7 @@
                         let element = $(e.target)[0].parentNode.parentNode.parentNode
                         let list = method_for_location(element)
                         console.log(list)
-                        save_data(list, function (r) {
+                        save_data(list, function(r) {
                             console.log(r)
                         })
                     }

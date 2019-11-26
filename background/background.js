@@ -279,7 +279,7 @@
                           file: "jquery-3.3.1.min.js"
                       }, function() {
                           chrome.tabs.executeScript(tabs[0].id, {
-                              'file': 'google_srh.js'
+                              file: 'google_srh.js'
                           })
                       })
                   }
@@ -295,15 +295,14 @@
                           })
                       }
                   })
-                  if (nu_code.length != 0 && nu_code != undefined) {
-                      if (switch_btn == true) { //開關打開則儲存瀏覽紀錄
-                          $.get(tabs[0].url, function(rst) {
-                              let data = {
-                                  url: tabs[0].url,
-                                  title: tabs[0].title,
-                              }
-                              data.html = rst
-                              send_to_nudb('http://' + domain + '/Site_Prog/API/plugin_api.php', data, nu_code, "crome_crawler")
+                  if (nu_code.length != 0 && nu_code != undefined) { //need fix 
+                      if (switch_btn) { //開關打開則儲存瀏覽紀錄
+                          chrome.tabs.executeScript(tabs[0].id, {
+                              file: "jquery-3.3.1.min.js"
+                          }, function() {
+                              chrome.tabs.executeScript(tabs[0].id, {
+                                  file: 'chrome_crawler.js'
+                              })
                           })
                       }
                   }
