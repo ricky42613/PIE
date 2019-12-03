@@ -12,21 +12,50 @@ function make_node(title, url) {
     return str
 }
 
-function make_rst(title, url, content, time) {
-    let newcontent = content.length < 30 ? content : content.slice(0, 30) + '...'
-    let str = `<div class="col-lg-3 course_col">
-                    <div class="course">
-                        <a href="${url}">
-                            <div class="course_body">
-                                <h3 class="course_title">${title}</h3>
-                                <div class="course_teacher">${time}</div>
-                                <div class="course_text">
-                                    <p>${newcontent}</p>
-                                </div>
-                            </div>
-                        </a>
+function highlight(str, key) {
+    var index = str.indexOf(key);
+    if (index >= 0) {
+        let newstr = str.substring(0, index) + "<span class='search_word'>" + key + "</span>" + str.substring(index + key.length);
+        return newstr
+    } else {
+        return str
+    }
+}
+
+function make_rst(title, url, content, time, key, type) {
+    if (type == 'facebook') {
+        content = '<div>' + content + '</div>'
+        content = $(content)[0].innerText
+    }
+    let key_start = content.indexOf(key)
+    let title_start = title.indexOf(key)
+    let newcontent
+    let newtitle
+
+    if (key_start < 40) {
+        key_start = 0
+        newcontent = content.length < 150 ? content : content.slice(key_start, 150) + '...'
+    } else {
+        key_start = key_start - 40
+        newcontent = content.length < 150 ? content : '...' + content.slice(key_start, key_start + 150) + '...'
+    }
+
+    if (title_start < 20) {
+        title_start = 0
+        newtitle = title.length < 40 ? title : title.slice(title_start, 40) + '...'
+    } else {
+        title_start = title_start - 20
+        newtitle = title.length < 80 ? title : '...' + title.slice(title_start, title_start + 40) + '...'
+    }
+    newtitle = highlight(newtitle, key)
+    newcontent = highlight(newcontent, key)
+    let str = `<a href="${url}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${newtitle}</h5>
+                        <small class="text-muted">${time}</small>
                     </div>
-                </div>`
+                    <p class="mb-1">${newcontent}</p>
+                </a>`
     return str
 }
 
@@ -77,8 +106,7 @@ $(document).on("change", "select", function() {
 
 $("#search").on('click', function(e) {
     e.preventDefault();
-    $('#result_row1').html('')
-    $('#result_row2').html('')
+    $('#result_list').html('')
     let key = $('#search_key')[0].value
     let type = $('[selected=selected]')[0].value
         //q is string
@@ -89,7 +117,7 @@ $("#search").on('click', function(e) {
             let msg = {
                 type: 'query_nudb',
                 query: q,
-                db: 'fb_post',
+                db: "fb_post",
                 and_match: 0,
                 ps: 8,
                 p: 1
@@ -97,11 +125,7 @@ $("#search").on('click', function(e) {
             chrome.runtime.sendMessage(msg, r => {
                 console.log(r)
                 r.result.recs.forEach((item, idx) => {
-                    if (idx < 4) {
-                        $('#result_row1').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                    } else {
-                        $('#result_row2').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                    }
+                    $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
                 })
                 $('#result_name').text('Search result:' + key + '(' + type + ')')
                 $('#result_name').attr('page', '1')
@@ -112,7 +136,7 @@ $("#search").on('click', function(e) {
             let msg = {
                 type: 'query_nudb',
                 query: q,
-                db: 'crome_crawler',
+                db: "crome_crawler",
                 and_match: 0,
                 ps: 8,
                 p: 1
@@ -126,11 +150,7 @@ $("#search").on('click', function(e) {
                     if (!item.rec.hasOwnProperty('time')) {
                         item.rec.time = ''
                     }
-                    if (idx < 4) {
-                        $('#result_row1').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                    } else {
-                        $('#result_row2').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                    }
+                    $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key, type))
                 })
                 $('#result_name').text('Search result:' + key + '(' + type + ')')
                 $('#result_name').attr('page', '1')
@@ -172,15 +192,10 @@ $('#next').on('click', function(e) {
         chrome.runtime.sendMessage(msg, r => {
             console.log(r)
             if (r.result.recs.length) {
-                $('#result_row1').html('')
-                $('#result_row2').html('')
+                $('#result_list').html('')
             }
             r.result.recs.forEach((item, idx) => {
-                if (idx < 4) {
-                    $('#result_row1').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                } else {
-                    $('#result_row2').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                }
+                $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
             })
             $('#result_name').text('Search result:' + key + '(' + type + ')')
             $('#result_name').attr('page', page)
@@ -202,21 +217,16 @@ $('#next').on('click', function(e) {
         chrome.runtime.sendMessage(msg, r => {
             console.log(r)
             if (r.result.recs.length) {
-                $('#result_row1').html('')
-                $('#result_row2').html('')
+                $('#result_list').html('')
             }
             r.result.recs.forEach((item, idx) => {
-                if (!item.rec.hasOwnProperty(text)) {
+                if (!item.rec.hasOwnProperty('text')) {
                     item.rec.text = ''
                 }
-                if (!item.rec.hasOwnProperty(time)) {
+                if (!item.rec.hasOwnProperty('time')) {
                     item.rec.time = ''
                 }
-                if (idx < 4) {
-                    $('#result_row1').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                } else {
-                    $('#result_row2').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                }
+                $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key, type))
             })
             $('#result_name').text('Search result:' + key + '(' + type + ')')
             $('#result_name').attr('page', page)
@@ -248,15 +258,10 @@ $('#prev').on('click', function(e) {
         chrome.runtime.sendMessage(msg, r => {
             console.log(r)
             if (r.result.recs.length) {
-                $('#result_row1').html('')
-                $('#result_row2').html('')
+                $('#result_list').html('')
             }
             r.result.recs.forEach((item, idx) => {
-                if (idx < 4) {
-                    $('#result_row1').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                } else {
-                    $('#result_row2').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date))
-                }
+                $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
             })
             $('#result_name').text('Search result:' + key + '(' + type + ')')
             $('#result_name').attr('page', page)
@@ -278,21 +283,16 @@ $('#prev').on('click', function(e) {
         chrome.runtime.sendMessage(msg, r => {
             console.log(r)
             if (r.result.recs.length) {
-                $('#result_row1').html('')
-                $('#result_row2').html('')
+                $('#result_list').html('')
             }
             r.result.recs.forEach((item, idx) => {
-                if (!item.rec.hasOwnProperty(text)) {
+                if (!item.rec.hasOwnProperty('text')) {
                     item.rec.text = ''
                 }
-                if (!item.rec.hasOwnProperty(time)) {
+                if (!item.rec.hasOwnProperty('time')) {
                     item.rec.time = ''
                 }
-                if (idx < 4) {
-                    $('#result_row1').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                } else {
-                    $('#result_row2').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time))
-                }
+                $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
             })
             $('#result_name').text('Search result:' + key + '(' + type + ')')
             $('#result_name').attr('page', page)
