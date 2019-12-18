@@ -44,16 +44,18 @@ function addcheck(item) { //選取影片
         } else {
             data.title = $(parent)[0].innerText.slice(0, end)
         }
-        if ($(ev.target).next().length) {
-            if ($(ev.target).next()[0].className == 'P5BnJb') {
-                data.describe = "-"
+        try{
+            if ($(ev.target).next().length) {
+                if ($(ev.target).next()[0].className == 'P5BnJb') {
+                    data.describe = "-"
+                } else {
+                    data.describe = $(ev.target).closest(".vsc,.rc").find(".st")[0].innerText
+                }
             } else {
                 data.describe = $(ev.target).closest(".vsc,.rc").find(".st")[0].innerText
             }
-        } else {
-            data.describe = $(ev.target).closest(".vsc,.rc").find(".st")[0].innerText
-        }
-        data.url = $(parent).attr('href')
+        }catch(e){}
+        data.url = $(parent).attr('href').indexOf('://')==-1? window.location.origin + $(parent).attr('href') : $(parent).attr('href')
         data.type = 'google'
         data.viewcnt = "-"
         data.likecnt = "-"

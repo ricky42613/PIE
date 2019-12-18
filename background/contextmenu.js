@@ -2,7 +2,12 @@
     var imgelem
     let taglist
     if (localStorage.getItem("taglist") == null) {
-        taglist = [{
+        taglist = [
+            {
+                "name": "無",
+                "children": []
+            },
+            {
                 "name": "其他",
                 "children": []
             },
@@ -427,7 +432,7 @@
 
         //utube video
         chrome.contextMenus.create({
-            title: '收藏影片',
+            title: '收藏選取結果',
             id: 'collect_youtube',
             contexts: ['all'],
             documentUrlPatterns: ["https://*.youtube.com/*", "https://www.google.com/*"]

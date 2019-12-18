@@ -635,11 +635,6 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
                 nu_code: nu_code,
                 q: request.query,
             }
-            if (request.and_match == 1) {
-                arg.matchmode = 'AndMatch'
-            } else if (request.and_match == 0) {
-                arg.matchmode = 'OrMatch'
-            }
 
             if (request.db != 'fbmsg') {
                 arg.p = request.p

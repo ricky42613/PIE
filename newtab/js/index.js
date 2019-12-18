@@ -112,13 +112,15 @@ $("#search").on('click', function(e) {
         //q is string
     console.log(type)
     if (type != 'google') {
-        if (type == "facebook") {
-            let q = '@author:' + key + ',@content:' + key
+        let nu_code = localStorage.getItem('nu_code')
+        if(nu_code==null||nu_code.length==0){
+            alert('login first')
+        }else if (type == "facebook") {
+            let q = key
             let msg = {
                 type: 'query_nudb',
                 query: q,
                 db: "fb_post",
-                and_match: 0,
                 ps: 8,
                 p: 1
             }
@@ -132,12 +134,11 @@ $("#search").on('click', function(e) {
                 $('#search_rst').css('display', 'block')
             })
         } else if (type == "history") {
-            let q = '@text:' + key + ',@title:' + key
+            let q = key
             let msg = {
                 type: 'query_nudb',
                 query: q,
                 db: "crome_crawler",
-                and_match: 0,
                 ps: 8,
                 p: 1
             }
@@ -180,12 +181,11 @@ $('#next').on('click', function(e) {
     let page = parseInt($($('#result_name')[0]).attr('page')) + 1
     console.log(page)
     if (type == "facebook") {
-        let q = '@author:' + key + ',@content:' + key
+        let q = key
         let msg = {
             type: 'query_nudb',
             query: q,
             db: 'fb_post',
-            and_match: 0,
             ps: 8,
             p: page
         }
@@ -205,12 +205,11 @@ $('#next').on('click', function(e) {
             }
         })
     } else if (type == "history") {
-        let q = '@text:' + key + ',@title:' + key
+        let q = key
         let msg = {
             type: 'query_nudb',
             query: q,
             db: 'crome_crawler',
-            and_match: 0,
             ps: 8,
             p: page
         }
@@ -246,12 +245,11 @@ $('#prev').on('click', function(e) {
     let page = parseInt($($('#result_name')[0]).attr('page')) - 1
     console.log(page)
     if (type == "facebook") {
-        let q = '@author:' + key + ',@content:' + key
+        let q = key
         let msg = {
             type: 'query_nudb',
             query: q,
             db: 'fb_post',
-            and_match: 0,
             ps: 8,
             p: page
         }
@@ -271,12 +269,11 @@ $('#prev').on('click', function(e) {
             }
         })
     } else if (type == "history") {
-        let q = '@text:' + key + ',@title:' + key
+        let q = key
         let msg = {
             type: 'query_nudb',
             query: q,
             db: 'crome_crawler',
-            and_match: 0,
             ps: 8,
             p: page
         }
