@@ -57,7 +57,14 @@
             type: 'save_data',
             data: data,
             db_name: 'fb_post'
-        }, function(r) {
+        }, (r) => {
+            cb(r)
+        })
+        chrome.runtime.sendMessage({
+            type: 'save_data',
+            data:data,
+            db_name: 'crome_crawler'
+        },r=>{
             cb(r)
         })
     }

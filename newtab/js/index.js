@@ -79,16 +79,16 @@ chrome.management.getAll(list => {
             } else if (item.name.toLowerCase() == "youtube") {
                 flag[1] = 1
             }
-            let str = `<li><a class="google_app" id="${item.id}" href="#">${item.name}</a></li>`
+            let str = `<li class="nav-item"><a class="google_app nav-link" id="${item.id}" href="#">${item.name}</a></li>`
             $('#app_bar').append(str)
         }
     });
     if (!flag[0]) {
-        let str = `<li><a href="https://mail.google.com/mail">Gmail</a></li>`
+        let str = `<li class="nav-item"><a class="nav-link" href="https://mail.google.com/mail">Gmail</a></li>`
         $('#app_bar').append(str)
     }
     if (!flag[1]) {
-        let str = `<li><a href="https://www.youtube.com/">Youtube</a></li>`
+        let str = `<li class="nav-item"><a class="nav-link" href="https://www.youtube.com/">Youtube</a></li>`
         $('#app_bar').append(str)
     }
 })
