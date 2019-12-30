@@ -19,8 +19,8 @@
     data.time = year + month + date + hour + min + sec
     data.title = document.title
     data.url = window.location.href
-    data.html = document.getElementsByTagName('body')[0].innerHTML
-    data.text = $('body').text()
+    data.text = document.body.innerText
+    data.type = "history"
     save_data(data, r => {
         console.log(r)
     })

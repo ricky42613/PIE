@@ -23,10 +23,6 @@ function highlight(str, key) {
 }
 
 function make_rst(title, url, content, time, key, type) {
-    if (type == 'facebook') {
-        content = '<div>' + content + '</div>'
-        content = $(content)[0].innerText
-    }
     let key_start = content.indexOf(key)
     let title_start = title.indexOf(key)
     let newcontent
@@ -52,10 +48,17 @@ function make_rst(title, url, content, time, key, type) {
     let str = `<a href="${url}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">${newtitle}</h5>
-                        <small class="text-muted">${time}</small>
+                        <small>${time}</small>
                     </div>
                     <p class="mb-1">${newcontent}</p>
                 </a>`
+        // `<a href="${url}" class="list-group-item list-group-item-action">
+        //             <div class="d-flex w-100 justify-content-between">
+        //                 <h5 class="mb-1">${newtitle}</h5>
+        //                 <small class="text-muted">${time}</small>
+        //             </div>
+        //             <p class="mb-1">${newcontent}</p>
+        //         </a>`
     return str
 }
 
@@ -104,42 +107,24 @@ $(document).on("change", "select", function() {
         .removeAttr("selected")
 });
 
-$("#search").on('click', function(e) {
+$(".search_btn").on('click', function(e) {
     e.preventDefault();
     $('#result_list').html('')
     let key = $('#search_key')[0].value
-    let type = $('[selected=selected]')[0].value
-        //q is string
+    let type = e.target.innerText
     console.log(type)
-    if (type != 'google') {
+        //q is string
+    if (type != 'Global') {
         let nu_code = localStorage.getItem('nu_code')
-        if(nu_code==null||nu_code.length==0){
+        if (nu_code == null || nu_code.length == 0) {
             alert('login first')
-        }else if (type == "facebook") {
-            let q = key
-            let msg = {
-                type: 'query_nudb',
-                query: q,
-                db: "fb_post",
-                ps: 8,
-                p: 1
-            }
-            chrome.runtime.sendMessage(msg, r => {
-                console.log(r)
-                r.result.recs.forEach((item, idx) => {
-                    $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
-                })
-                $('#result_name').text('Search result:' + key + '(' + type + ')')
-                $('#result_name').attr('page', '1')
-                $('#search_rst').css('display', 'block')
-            })
-        } else if (type == "history") {
-            let q = key
+        } else {
+            let q = key + ',@type:history'
             let msg = {
                 type: 'query_nudb',
                 query: q,
                 db: "crome_crawler",
-                ps: 8,
+                ps: 10,
                 p: 1
             }
             chrome.runtime.sendMessage(msg, r => {
@@ -151,11 +136,17 @@ $("#search").on('click', function(e) {
                     if (!item.rec.hasOwnProperty('time')) {
                         item.rec.time = ''
                     }
-                    $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key, type))
-                })
-                $('#result_name').text('Search result:' + key + '(' + type + ')')
-                $('#result_name').attr('page', '1')
-                $('#search_rst').css('display', 'block')
+                    if (!item.rec.hasOwnProperty('type')) {
+                        item.rec.type = "history"
+                    }
+                    let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
+                    let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
+                    let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
+                    $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
+                });
+                $('#rst_page').css({ "display": "block" })
+                    // $('#result_name').text('Search result:' + key + '(' + type + ')')
+                $('#rst_page').attr('page', '1')
             })
         }
     } else {
@@ -174,129 +165,86 @@ function get_key(str) {
 }
 
 $('#next').on('click', function(e) {
-    let rst = $('#result_name').text()
-    let rst_info = get_key(rst)
-    let key = rst_info.name
-    let type = rst_info.type
-    let page = parseInt($($('#result_name')[0]).attr('page')) + 1
+    let key = $('#search_key')[0].value
+    let page = parseInt($('#rst_page').attr('page')) + 1
     console.log(page)
-    if (type == "facebook") {
-        let q = key
-        let msg = {
-            type: 'query_nudb',
-            query: q,
-            db: 'fb_post',
-            ps: 8,
-            p: page
+    let q = key + ',@type:history'
+    let msg = {
+        type: 'query_nudb',
+        query: q,
+        db: 'crome_crawler',
+        ps: 10,
+        p: page
+    }
+    chrome.runtime.sendMessage(msg, r => {
+        console.log(r)
+        if (r.result.recs.length) {
+            $('#result_list').html('')
         }
-        chrome.runtime.sendMessage(msg, r => {
-            console.log(r)
-            if (r.result.recs.length) {
-                $('#result_list').html('')
-            }
-            r.result.recs.forEach((item, idx) => {
-                $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
-            })
-            $('#result_name').text('Search result:' + key + '(' + type + ')')
-            $('#result_name').attr('page', page)
-            $('#search_rst').css('display', 'block')
-            if (page != 1) {
-                $('#prev').css('display', 'block')
-            }
-        })
-    } else if (type == "history") {
-        let q = key
-        let msg = {
-            type: 'query_nudb',
-            query: q,
-            db: 'crome_crawler',
-            ps: 8,
-            p: page
+        if (r.result.recs.length < 10) {
+            $('#next').css('display', 'none')
         }
-        chrome.runtime.sendMessage(msg, r => {
-            console.log(r)
-            if (r.result.recs.length) {
-                $('#result_list').html('')
-            }
-            r.result.recs.forEach((item, idx) => {
+        r.result.recs.forEach((item, idx) => {
+            try {
                 if (!item.rec.hasOwnProperty('text')) {
                     item.rec.text = ''
                 }
                 if (!item.rec.hasOwnProperty('time')) {
                     item.rec.time = ''
                 }
-                $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key, type))
-            })
-            $('#result_name').text('Search result:' + key + '(' + type + ')')
-            $('#result_name').attr('page', page)
-            $('#search_rst').css('display', 'block')
-            if (page != 1) {
-                $('#prev').css('display', 'block')
+                if (!item.rec.hasOwnProperty('type')) {
+                    item.rec.type = "history"
+                }
+                let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
+                let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
+                let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
+                $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
+            } catch (e) {
+                console.log(e)
             }
         })
-    }
+        $('#rst_page').attr('page', page)
+        $('#search_rst').css('display', 'block')
+        if (page != 1) {
+            $('#prev').css('display', 'block')
+        }
+    })
 })
 
 $('#prev').on('click', function(e) {
-    let rst = $('#result_name').text()
-    let rst_info = get_key(rst)
-    let key = rst_info.name
-    let type = rst_info.type
-    let page = parseInt($($('#result_name')[0]).attr('page')) - 1
+    let key = $('#search_key')[0].value
+    let page = parseInt($('#rst_page').attr('page')) - 1
     console.log(page)
-    if (type == "facebook") {
-        let q = key
-        let msg = {
-            type: 'query_nudb',
-            query: q,
-            db: 'fb_post',
-            ps: 8,
-            p: page
-        }
-        chrome.runtime.sendMessage(msg, r => {
-            console.log(r)
-            if (r.result.recs.length) {
-                $('#result_list').html('')
-            }
-            r.result.recs.forEach((item, idx) => {
-                $('#result_list').append(make_rst(item.rec.author, item.rec.post_link, item.rec.content, item.rec.post_date, key, type))
-            })
-            $('#result_name').text('Search result:' + key + '(' + type + ')')
-            $('#result_name').attr('page', page)
-            $('#search_rst').css('display', 'block')
-            if (page == 1) {
-                $('#prev').css('display', 'none')
-            }
-        })
-    } else if (type == "history") {
-        let q = key
-        let msg = {
-            type: 'query_nudb',
-            query: q,
-            db: 'crome_crawler',
-            ps: 8,
-            p: page
-        }
-        chrome.runtime.sendMessage(msg, r => {
-            console.log(r)
-            if (r.result.recs.length) {
-                $('#result_list').html('')
-            }
-            r.result.recs.forEach((item, idx) => {
-                if (!item.rec.hasOwnProperty('text')) {
-                    item.rec.text = ''
-                }
-                if (!item.rec.hasOwnProperty('time')) {
-                    item.rec.time = ''
-                }
-                $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
-            })
-            $('#result_name').text('Search result:' + key + '(' + type + ')')
-            $('#result_name').attr('page', page)
-            $('#search_rst').css('display', 'block')
-            if (page == 1) {
-                $('#prev').css('display', 'none')
-            }
-        })
+    let q = key + ',@type:history'
+    let msg = {
+        type: 'query_nudb',
+        query: q,
+        db: 'crome_crawler',
+        ps: 10,
+        p: page
     }
+    chrome.runtime.sendMessage(msg, r => {
+        console.log(r)
+        if (r.result.recs.length) {
+            $('#result_list').html('')
+        }
+        r.result.recs.forEach((item, idx) => {
+            if (!item.rec.hasOwnProperty('text')) {
+                item.rec.text = ''
+            }
+            if (!item.rec.hasOwnProperty('time')) {
+                item.rec.time = ''
+            }
+            if (!item.rec.hasOwnProperty('type')) {
+                item.rec.type = "history"
+            }
+            $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
+        })
+        $('#rst_page').attr('page', page)
+        $('#search_rst').css('display', 'block')
+        $('#next').css('display', 'block')
+        if (page == 1) {
+            $('#prev').css('display', 'none')
+        }
+    })
 })

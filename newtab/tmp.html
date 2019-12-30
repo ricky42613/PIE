@@ -1,64 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>New tab</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous"></script>
-        <script src="semantic/dist/semantic.min.js"></script>
-    </head>
-    <body>
-        <div>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <a class="navbar-brand" href="#">New Tab</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+<head>
+    <title>New tab</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
+    <link rel="stylesheet" type="text/css" href="styles/main_styles.css">
+    <style>
+        .search_word {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">New Tab</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                   <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav" id="app_bar">
-                    </ul>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" id="app_bar">
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div>
+        <form class="form-inline" style="padding: 0.5cm;">
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" class="form-control" id="search_key" placeholder="keyword">
+            </div>
+            <button type="button" class="search_btn btn btn-primary mb-2" style="margin-right: 5px;">Global</button>
+            <button type="button" class="search_btn btn btn-primary mb-2">History</button>
+        </form>
+    </div>
+    <div id="rst_page" style="width: 40%; padding: 0.5cm;display: none;">
+        <div id="result_list" class="list-group">
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li class="page-item" id="prev" style="display: none;"><a class="page-link">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                <li class="page-item" id="next" style="display: block;"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="courses">
+        <div class="section_background parallax-window" data-parallax="scroll" data-image-src="images/courses_background.jpg" data-speed="0.8"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="section_title_container text-center">
+                        <h2 class="section_title">Most Visited</h2>
+                    </div>
                 </div>
-            </nav>
+            </div>
+            <div class="row courses_row" id="courses_row1">
+                <!-- Course -->
+            </div>
+            <div class="row courses_row" id="courses_row2">
+                <!-- Course -->
+            </div>
         </div>
-        <div>
-            <form class="form-inline" style="padding-top: 0.5cm;">
-                <div class="form-group mx-sm-3 mb-2">
-                  <input type="password" class="form-control" id="keyword" placeholder="Keyword">
-                </div>
-                <button type="submit" class="btn btn-primary mb-2">Search</button>
-            </form>
-        </div>
-        <div class="list-group" style="width: 40%;">
-            <a href="#" class="list-group-item list-group-item-action active">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">List group item heading</h5>
-                <small>3 days ago</small>
-              </div>
-              <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">List group item heading</h5>
-                <small class="text-muted">3 days ago</small>
-              </div>
-              <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">List group item heading</h5>
-                <small class="text-muted">3 days ago</small>
-              </div>
-              <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-            </a>
-        </div>
-        <script src="js/jquery-3.2.1.min.js"></script>
-        <script src="plugins/scrollmagic/ScrollMagic.min.js"></script>
-        <script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
-        <script src="js/custom.js"></script>
-        <script src="js/index.js"></script>
-    </body>
+    </div>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="plugins/scrollmagic/ScrollMagic.min.js"></script>
+    <script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/index.js"></script>
+</body>
+
 </html>

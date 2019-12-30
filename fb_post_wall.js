@@ -62,9 +62,9 @@
         })
         chrome.runtime.sendMessage({
             type: 'save_data',
-            data:data,
+            data: data,
             db_name: 'crome_crawler'
-        },r=>{
+        }, r => {
             cb(r)
         })
     }
@@ -294,7 +294,7 @@
     function handletime_en(str) {
         let time = new Date();
         var d2 = new Date(time);
-        if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
+        if (str.indexOf("Today") != -1 || str.indexOf("hour") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
             let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
             let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
             return time.getFullYear() + '' + m + '' + d + '000000'
@@ -433,6 +433,18 @@
         return subdata
     }
 
+    function current_time() {
+        let curtime = new Date()
+        let year = '' + curtime.getFullYear()
+        let month = curtime.getMonth() + 1 < 10 ? '0' + (curtime.getMonth() + 1) : '' + (curtime.getMonth() + 1)
+        let date = curtime.getDate() < 10 ? '0' + curtime.getDate() : '' + curtime.getDate()
+        let hour = curtime.getHours() < 10 ? '0' + curtime.getHours() : '' + curtime.getHours()
+        let min = curtime.getMinutes() < 10 ? '0' + curtime.getMinutes() : '' + curtime.getMinutes()
+        let sec = curtime.getSeconds() < 10 ? '0' + curtime.getSeconds() : '' + curtime.getSeconds()
+        let time = year + month + date + hour + min + sec
+        return time
+    }
+
     function handle_reply(reply) { //"看過的"留言回覆
         let reply_data = {}
         let tmpr = $(reply).find("[data-testid='UFI2Comment/root_depth_1']")[0]
@@ -470,6 +482,8 @@
                 permission: permission,
                 content: content,
                 author: author,
+                time: current_time(),
+                type: "posts&history" //use in search fb post and history
             }
             let post_frame = element.closest("._5jmm")
             if ($(post_frame)[0].dataset.hasOwnProperty('timestamp')) {
@@ -481,6 +495,7 @@
                 let unixTimestamp = new Date(post_timestamp)
                 data.post_date = date2str(unixTimestamp) //發文時間
             }
+
             let curcmtlist = await $(element).find("._7791").children("li").map((idx, cmt) => { //已展開的留言列表
                 let subdata = handle_cmt(cmt)
                 let cur_replys = $(cmt).find("[data-testid='UFI2CommentsList/root_depth_1'] > ul > li").map((index, reply) => {
@@ -502,33 +517,32 @@
                 }
             })
             element.find('._3x-2 img').map((idx, item) => {
-                    let info = {}
-                    info.src = item.src
-                    info.articleID = data.articleID
-                    info.type = "posts_img"
-                    convertImgToBase64(item.src, function(base64Img) {
-                        info.img64 = base64Img
-                        console.log(info)
-                        save_data(info, r => {
-                            console.log(r)
-                        })
+                let info = {}
+                info.src = item.src
+                info.articleID = data.articleID
+                info.type = "posts_img"
+                convertImgToBase64(item.src, function(base64Img) {
+                    info.img64 = base64Img
+                    console.log(info)
+                    save_data(info, r => {
+                        console.log(r)
                     })
-                }).get() //handle normal image
+                })
+            }).get(); //handle normal image
 
             element.find('._3chq').map((idx, item) => {
-                    let info = {}
-                    info.src = item.src
-                    info.articleID = data.articleID
-                    info.type = "posts_img"
-                    convertImgToBase64(item.src, function(base64Img) {
-                        info.img64 = base64Img
-                        console.log(info)
-                        save_data(info, r => {
-                            console.log(r)
-                        })
+                let info = {}
+                info.src = item.src
+                info.articleID = data.articleID
+                info.type = "posts_img"
+                convertImgToBase64(item.src, function(base64Img) {
+                    info.img64 = base64Img
+                    console.log(info)
+                    save_data(info, r => {
+                        console.log(r)
                     })
-                }).get() //handle video image
-            data.type = "posts"
+                })
+            }).get(); //handle video image
             if (element.find('._5r69').length) {
                 //share
                 let share = element.find('._5r69')[0].innerHTML
@@ -597,7 +611,11 @@
                 } else {
                     data2.time = handletime(time)
                 }
-                console.log(data2.time)
+                if (data2.time.indexOf('undefined') != -1) {
+                    console.log(cmt_link)
+                    console.log(time)
+                    console.log(data2.time)
+                }
                 let target_id = item.id
                 try {
                     data2.speaker = $(inner).find("h3")[0].innerText
@@ -634,7 +652,10 @@
                                     } else {
                                         info.time = handletime(time)
                                     }
-                                    console.log(info.time)
+                                    if (info.time.indexOf('undefined') != -1) {
+                                        console.log(info.time)
+                                        console.log(time)
+                                    }
                                     info.type = "reply"
                                 } catch (e) {
                                     console.log(e)
@@ -661,15 +682,11 @@
             cb({})
         }
     }
-
     window.addEventListener("load", function(event) {
         lang = $('html')[0].lang
-        let cur_url = window.location.href
-        let idx = 0
         let c_user = getname('c_user')
         let article_list = $('.userContentWrapper')
         let n = article_list.length
-        idx = n
         for (let i = 0; i < n; i++) {
             get_post(article_list.eq(i), c_user, (data) => {
                 save_data(data, r => {
@@ -678,6 +695,18 @@
             })
         }
         $("body").bind('DOMNodeInserted', function(ev) {
+            if ($(ev.target).find('.userContentWrapper').length) {
+                let article = $(ev.target).find('.userContentWrapper')[0]
+                setTimeout(function() {
+                    let article = $(ev.target).find('.userContentWrapper')[0]
+                    get_post($(article), c_user, (post) => {
+                        console.log(post)
+                        save_data(post, r => {
+                            console.log(r)
+                        })
+                    })
+                }, 3000)
+            }
             if ($(ev.target)[0].nodeName == 'LI' && $(ev.target).find("[data-testid='UFI2Comment/root_depth_0']").length != 0) {
                 let cmt = ev.target
                 let subdata = handle_cmt(cmt)
@@ -703,99 +732,6 @@
                     console.log(r)
                 })
             }
-            if (window.location.href != cur_url) {
-                console.log('change page')
-                cur_url = window.location.href
-                idx = 0
-                let time
-                if (cur_url == 'https://www.facebook.com/') {
-                    time = 1000
-                } else {
-                    time = 10000
-                }
-                setTimeout(function() {
-                    let articles = $('.userContentWrapper')
-                    idx = articles.length
-                    for (let i = 0; i < articles.length; i++) {
-                        get_post(articles.eq(i), c_user, (data) => {
-                            console.log(data)
-                            save_data(data, r => {
-                                console.log(r)
-                            })
-                        })
-                    }
-                }, time)
-            }
-            if (ev.target.id != undefined) { //社團
-                if (ev.target.id.indexOf('jumper_') != -1 || ev.target.id.indexOf('mall_post_') != -1) {
-                    setTimeout(function() {
-                        let articles = $(ev.target).find('.userContentWrapper')
-                        get_post(articles.eq(0), c_user, (data) => {
-                            console.log(data)
-                            save_data(data, r => {
-                                console.log(r)
-                            })
-                        })
-                    }, 3000)
-                }
-            }
-            if (ev.target.className != undefined) { //個人頁面、粉專
-                if (ev.target.className.indexOf('_1xnd') != -1) {
-                    setTimeout(function() {
-                        let articles = $(ev.target).find('.userContentWrapper')
-                        for (let i = 0; i < articles.length; i++) {
-                            get_post(articles.eq(i), c_user, (data) => {
-                                console.log(data)
-                                save_data(data, r => {
-                                    console.log(r)
-                                })
-                            })
-                        }
-                    }, 3000)
-                }
-            }
         })
-        if ($("#ariaPoliteAlert").length == 0) {
-            $("body").bind('DOMNodeInserted', function(ev) {
-                var loadflag = $("body").find("#ariaPoliteAlert")
-                if (loadflag) {
-                    $("#ariaPoliteAlert").bind('DOMNodeInserted', function(e) {
-                        if (e.target.innerText.indexOf("載入") != -1 || e.target.innerText.indexOf("requested") != -1) {
-                            setTimeout(function() {
-                                let tmp = idx
-                                let articles = $('.userContentWrapper')
-                                idx = articles.length
-                                for (let i = tmp; i < articles.length; i++) {
-                                    get_post(articles.eq(i), c_user, (data) => {
-                                        console.log(data)
-                                        save_data(data, r => {
-                                            console.log(r)
-                                        })
-                                    })
-                                }
-                            }, 3000)
-                        }
-                    });
-                }
-            });
-        } else {
-            $("#ariaPoliteAlert").bind('DOMNodeInserted', function(e) {
-                if (e.target.innerText.indexOf("載入") != -1 || e.target.innerText.indexOf("requested") != -1) {
-                    setTimeout(function() {
-                        let tmp = idx
-                        let articles = $('.userContentWrapper')
-                        idx = articles.length
-                        for (let i = tmp; i < articles.length; i++) {
-                            get_post(articles.eq(i), c_user, (post) => {
-                                console.log(post)
-                                save_data(post, r => {
-                                    console.log(r)
-                                })
-                            })
-                        }
-                    }, 3000)
-                }
-            });
-        }
     })
 })();

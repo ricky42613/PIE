@@ -639,11 +639,9 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
             if (request.db != 'fbmsg') {
                 arg.p = request.p
                 arg.ps = request.ps
+                arg.onlyfield = '@title:,@articleID:'
             }
-            if (request.db == 'fb_post') {
-                arg.pat = '@type:posts'
-                arg.onlyfield = '@articleID:'
-            }
+
             let str = JSON.stringify(arg)
             $.ajax({
                 url: addr,

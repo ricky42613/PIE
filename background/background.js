@@ -24,7 +24,6 @@
           pack.nu_code = nu_code
           pack.db_name = db_name
           let str = JSON.stringify(pack)
-          console.log(pack)
           $.ajax({
               url: addr,
               type: 'POST',

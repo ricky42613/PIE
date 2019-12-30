@@ -167,7 +167,7 @@
     function handletime_en(str) {
         let time = new Date();
         var d2 = new Date(time);
-        if (str.indexOf("Today") != -1 || str.indexOf("hours") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
+        if (str.indexOf("Today") != -1 || str.indexOf("hour") != -1 || str.indexOf("minute") != -1 || str.indexOf("now") != -1) { //eX.15分鐘前 1小時前 剛剛
             let m = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1)
             let d = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate()
             return time.getFullYear() + '' + m + '' + d + '000000'
