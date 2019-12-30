@@ -21,6 +21,7 @@
     data.url = window.location.href
     data.text = document.body.innerText
     data.type = "history"
+    data.articleID = document.title
     save_data(data, r => {
         console.log(r)
     })

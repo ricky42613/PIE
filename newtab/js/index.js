@@ -22,7 +22,7 @@ function highlight(str, key) {
     }
 }
 
-function make_rst(title, url, content, time, key, type) {
+function make_rst(title, url, content, time, key) {
     let key_start = content.indexOf(key)
     let title_start = title.indexOf(key)
     let newcontent
@@ -119,7 +119,7 @@ $(".search_btn").on('click', function(e) {
         if (nu_code == null || nu_code.length == 0) {
             alert('login first')
         } else {
-            let q = key + ',@type:history'
+            let q = key + ",@type:history"
             let msg = {
                 type: 'query_nudb',
                 query: q,
@@ -129,6 +129,9 @@ $(".search_btn").on('click', function(e) {
             }
             chrome.runtime.sendMessage(msg, r => {
                 console.log(r)
+                if(r.result.recs.length<10){
+                    $('#next').css("display","none")
+                }
                 r.result.recs.forEach((item, idx) => {
                     if (!item.rec.hasOwnProperty('text')) {
                         item.rec.text = ''
@@ -214,7 +217,6 @@ $('#next').on('click', function(e) {
 $('#prev').on('click', function(e) {
     let key = $('#search_key')[0].value
     let page = parseInt($('#rst_page').attr('page')) - 1
-    console.log(page)
     let q = key + ',@type:history'
     let msg = {
         type: 'query_nudb',
@@ -248,3 +250,48 @@ $('#prev').on('click', function(e) {
         }
     })
 })
+
+$(".page-num").on('click',function(e){
+    e.preventDefault()
+    let page = parseInt(e.target.innerText)
+    let key = $('#search_key')[0].value
+    let q = key + ',@type:history'
+    let msg = {
+        type: 'query_nudb',
+        query: q,
+        db: 'crome_crawler',
+        ps: 10,
+        p: page
+    }
+    chrome.runtime.sendMessage(msg, r => {
+        console.log(r)
+        if (r.result.recs.length) {
+            $('#result_list').html('')
+        }
+        if(r.result.recs.length == 0){
+            alert("no data")
+            return
+        }
+        else if(r.result.recs.length<10){
+            $('#next').css('display','none')
+        }
+        r.result.recs.forEach((item, idx) => {
+            if (!item.rec.hasOwnProperty('text')) {
+                item.rec.text = ''
+            }
+            if (!item.rec.hasOwnProperty('time')) {
+                item.rec.time = ''
+            }
+            if (!item.rec.hasOwnProperty('type')) {
+                item.rec.type = "history"
+            }
+            $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
+        })
+        $('#rst_page').attr('page', page)
+        $('#search_rst').css('display', 'block')
+        if (page == 1) {
+            $('#prev').css('display', 'none')
+        }
+    })
+})
+
