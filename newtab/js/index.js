@@ -119,7 +119,7 @@ $(".search_btn").on('click', function(e) {
         if (nu_code == null || nu_code.length == 0) {
             alert('login first')
         } else {
-            let q = key + ",@type:history"
+            let q = key + ",+@type:history"
             let msg = {
                 type: 'query_nudb',
                 query: q,
@@ -129,8 +129,8 @@ $(".search_btn").on('click', function(e) {
             }
             chrome.runtime.sendMessage(msg, r => {
                 console.log(r)
-                if(r.result.recs.length<10){
-                    $('#next').css("display","none")
+                if (r.result.recs.length < 10) {
+                    $('#next').css("display", "none")
                 }
                 r.result.recs.forEach((item, idx) => {
                     if (!item.rec.hasOwnProperty('text')) {
@@ -145,6 +145,7 @@ $(".search_btn").on('click', function(e) {
                     let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
                     let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
                     let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
+                    console.log(title)
                     $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
                 });
                 $('#rst_page').css({ "display": "block" })
@@ -217,7 +218,7 @@ $('#next').on('click', function(e) {
 $('#prev').on('click', function(e) {
     let key = $('#search_key')[0].value
     let page = parseInt($('#rst_page').attr('page')) - 1
-    let q = key + ',@type:history'
+    let q = key + ',+@type:history'
     let msg = {
         type: 'query_nudb',
         query: q,
@@ -251,11 +252,11 @@ $('#prev').on('click', function(e) {
     })
 })
 
-$(".page-num").on('click',function(e){
+$(".page-num").on('click', function(e) {
     e.preventDefault()
     let page = parseInt(e.target.innerText)
     let key = $('#search_key')[0].value
-    let q = key + ',@type:history'
+    let q = key + ',+@type:history'
     let msg = {
         type: 'query_nudb',
         query: q,
@@ -268,12 +269,11 @@ $(".page-num").on('click',function(e){
         if (r.result.recs.length) {
             $('#result_list').html('')
         }
-        if(r.result.recs.length == 0){
+        if (r.result.recs.length == 0) {
             alert("no data")
             return
-        }
-        else if(r.result.recs.length<10){
-            $('#next').css('display','none')
+        } else if (r.result.recs.length < 10) {
+            $('#next').css('display', 'none')
         }
         r.result.recs.forEach((item, idx) => {
             if (!item.rec.hasOwnProperty('text')) {
@@ -294,4 +294,3 @@ $(".page-num").on('click',function(e){
         }
     })
 })
-
