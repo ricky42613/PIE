@@ -50,6 +50,7 @@ function make_rst(title, url, content, time, key) {
                         <h5 class="mb-1">${newtitle}</h5>
                         <small>${time}</small>
                     </div>
+                    <small>${url}</small>
                     <p class="mb-1">${newcontent}</p>
                 </a>`
         // `<a href="${url}" class="list-group-item list-group-item-action">

@@ -21,21 +21,26 @@
           } else {
               pack.rec = [data]
           }
-          pack.nu_code = nu_code
-          pack.db_name = db_name
-          let str = JSON.stringify(pack)
-          $.ajax({
-              url: addr,
-              type: 'POST',
-              headers: {
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                  'Content-Type': 'application/x-www-form-urlencoded'
-              },
-              data: "mode=nudb_put&arg=" + encodeURIComponent(str),
-              success: function(r) {
-                  console.log(r)
-              }
-          })
+          if(pack.rec.length){
+            if(pack.rec[0].type.indexOf("history")!=-1){
+                console.log(pack.rec[0])
+            }
+            pack.nu_code = nu_code
+            pack.db_name = db_name
+            let str = JSON.stringify(pack)
+            $.ajax({
+                url: addr,
+                type: 'POST',
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: "mode=nudb_put&arg=" + encodeURIComponent(str),
+                success: function(r) {
+                    console.log(r)
+                }
+            })
+          }
       })
   }
 
@@ -64,7 +69,6 @@
               sendResponse(info)
           }
           if ("add_id" == request.type) {
-              console.log(id_list)
               if (id_list.indexOf(request.target) == -1) {
                   id_list.push(request.target)
                   localStorage.setItem("id_list", JSON.stringify(id_list))
