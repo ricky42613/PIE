@@ -172,7 +172,7 @@ $('#next').on('click', function(e) {
     let key = $('#search_key')[0].value
     let page = parseInt($('#rst_page').attr('page')) + 1
     console.log(page)
-    let q = key + ',@type:history'
+    let q = key + ',+@type:history'
     let msg = {
         type: 'query_nudb',
         query: q,
