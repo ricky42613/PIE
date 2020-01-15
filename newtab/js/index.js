@@ -13,7 +13,7 @@ function make_node(title, url) {
 }
 
 function highlight(str, key) {
-    var index = str.indexOf(key);
+    var index = str.toLowerCase().indexOf(key.toLowerCase());
     if (index >= 0) {
         let newstr = str.substring(0, index) + "<span class='search_word'>" + key + "</span>" + str.substring(index + key.length);
         return newstr
@@ -23,8 +23,8 @@ function highlight(str, key) {
 }
 
 function make_rst(title, url, content, time, key) {
-    let key_start = content.indexOf(key)
-    let title_start = title.indexOf(key)
+    let key_start = content.toLowerCase().indexOf(key.toLowerCase())
+    let title_start = title.toLowerCase().indexOf(key.toLowerCase())
     let newcontent
     let newtitle
 
@@ -45,22 +45,42 @@ function make_rst(title, url, content, time, key) {
     }
     newtitle = highlight(newtitle, key)
     newcontent = highlight(newcontent, key)
+    url_obj = new URL(url)
+    let path_str = url_obj.protocol + "//" + url_obj.hostname + url_obj.pathname.replace(/\//g, " > ");
     let str = `<a href="${url}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">${newtitle}</h5>
                         <small>${time}</small>
                     </div>
-                    <small>${url}</small>
-                    <p class="mb-1">${newcontent}</p>
+                    <small>${path_str}</small>
+                    <p class="mb-1">
+                        ${newcontent}
+                    </p>
                 </a>`
-        // `<a href="${url}" class="list-group-item list-group-item-action">
-        //             <div class="d-flex w-100 justify-content-between">
-        //                 <h5 class="mb-1">${newtitle}</h5>
-        //                 <small class="text-muted">${time}</small>
-        //             </div>
-        //             <p class="mb-1">${newcontent}</p>
-        //         </a>`
     return str
+}
+
+function change_pagenum_list(cur_page, direc) {
+    let pages = [...document.getElementsByClassName("page-num")]
+    console.log(pages)
+    if (direc) {
+        pages.forEach((item, idx) => {
+            let tmp = cur_page + idx
+            item.innerHTML = `<a class="page-link" href="#">${tmp}</a>`
+        })
+    } else {
+        cur_page -= 4
+        pages.forEach((item, idx) => {
+            let tmp = cur_page + idx
+            item.innerHTML = `<a class="page-link" href="#">${tmp}</a>`
+        })
+    }
+}
+
+function mark_cur_page(page) {
+    let idx = parseInt(page) % 5 - 1 == -1 ? 4 : parseInt(page) % 5 - 1
+    $('.page-num .page-link').css('color', 'initial')
+    $('.page-num .page-link').eq(idx).css('color', 'red')
 }
 
 chrome.topSites.get(arr => {
@@ -149,9 +169,9 @@ $(".search_btn").on('click', function(e) {
                     console.log(title)
                     $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
                 });
-                $('#rst_page').css({ "display": "block" })
-                    // $('#result_name').text('Search result:' + key + '(' + type + ')')
+                $('#rst_page').css({ "display": "block" });
                 $('#rst_page').attr('page', '1')
+                mark_cur_page(1)
             })
         }
     } else {
@@ -160,19 +180,14 @@ $(".search_btn").on('click', function(e) {
     }
 })
 
-function get_key(str) {
-    let start = str.indexOf(":")
-    let end = str.lastIndexOf("(")
-    let data = {}
-    data.name = str.slice(start + 1, end)
-    data.type = str.slice(end + 1, -1)
-    return data
-}
-
 $('#next').on('click', function(e) {
+    let nu_code = localStorage.getItem('nu_code')
+    if (nu_code == null || nu_code.length == 0) {
+        alert('login first')
+        return
+    }
     let key = $('#search_key')[0].value
     let page = parseInt($('#rst_page').attr('page')) + 1
-    console.log(page)
     let q = key + ',+@type:history'
     let msg = {
         type: 'query_nudb',
@@ -191,15 +206,6 @@ $('#next').on('click', function(e) {
         }
         r.result.recs.forEach((item, idx) => {
             try {
-                if (!item.rec.hasOwnProperty('text')) {
-                    item.rec.text = ''
-                }
-                if (!item.rec.hasOwnProperty('time')) {
-                    item.rec.time = ''
-                }
-                if (!item.rec.hasOwnProperty('type')) {
-                    item.rec.type = "history"
-                }
                 let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
                 let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
                 let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
@@ -213,10 +219,19 @@ $('#next').on('click', function(e) {
         if (page != 1) {
             $('#prev').css('display', 'block')
         }
+        if (page % 5 == 1) {
+            change_pagenum_list(page, 1)
+        }
+        mark_cur_page(page)
     })
 })
 
 $('#prev').on('click', function(e) {
+    let nu_code = localStorage.getItem('nu_code')
+    if (nu_code == null || nu_code.length == 0) {
+        alert('login first')
+        return
+    }
     let key = $('#search_key')[0].value
     let page = parseInt($('#rst_page').attr('page')) - 1
     let q = key + ',+@type:history'
@@ -233,16 +248,10 @@ $('#prev').on('click', function(e) {
             $('#result_list').html('')
         }
         r.result.recs.forEach((item, idx) => {
-            if (!item.rec.hasOwnProperty('text')) {
-                item.rec.text = ''
-            }
-            if (!item.rec.hasOwnProperty('time')) {
-                item.rec.time = ''
-            }
-            if (!item.rec.hasOwnProperty('type')) {
-                item.rec.type = "history"
-            }
-            $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
+            let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
+            let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
+            let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
+            $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
         })
         $('#rst_page').attr('page', page)
         $('#search_rst').css('display', 'block')
@@ -250,11 +259,20 @@ $('#prev').on('click', function(e) {
         if (page == 1) {
             $('#prev').css('display', 'none')
         }
+        if (page % 5 == 0) {
+            change_pagenum_list(page, 0)
+        }
+        mark_cur_page(page)
     })
 })
 
 $(".page-num").on('click', function(e) {
     e.preventDefault()
+    let nu_code = localStorage.getItem('nu_code')
+    if (nu_code == null || nu_code.length == 0) {
+        alert('login first')
+        return
+    }
     let page = parseInt(e.target.innerText)
     let key = $('#search_key')[0].value
     let q = key + ',+@type:history'
@@ -277,21 +295,21 @@ $(".page-num").on('click', function(e) {
             $('#next').css('display', 'none')
         }
         r.result.recs.forEach((item, idx) => {
-            if (!item.rec.hasOwnProperty('text')) {
-                item.rec.text = ''
-            }
-            if (!item.rec.hasOwnProperty('time')) {
-                item.rec.time = ''
-            }
-            if (!item.rec.hasOwnProperty('type')) {
-                item.rec.type = "history"
-            }
-            $('#result_list').append(make_rst(item.rec.title, item.rec.url, item.rec.text, item.rec.time, key))
+            let url = item.rec.type.indexOf('post') == -1 ? item.rec.url : item.rec.post_link
+            let title = item.rec.type.indexOf('post') == -1 ? item.rec.title : item.rec.author
+            let content = item.rec.type.indexOf('post') == -1 ? item.rec.text : item.rec.content
+            $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
         })
         $('#rst_page').attr('page', page)
         $('#search_rst').css('display', 'block')
         if (page == 1) {
             $('#prev').css('display', 'none')
         }
+        mark_cur_page(page)
     })
+})
+
+$('#Logo').on('click', function(e) {
+    e.preventDefault()
+    window.location.reload()
 })

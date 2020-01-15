@@ -696,7 +696,6 @@
         }
         $("body").bind('DOMNodeInserted', function(ev) {
             if ($(ev.target).find('.userContentWrapper').length) {
-                let article = $(ev.target).find('.userContentWrapper')[0]
                 setTimeout(function() {
                     let article = $(ev.target).find('.userContentWrapper')[0]
                     get_post($(article), c_user, (post) => {
