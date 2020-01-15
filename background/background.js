@@ -4,6 +4,8 @@
 
   'use strict';
 
+  let last_id = ""
+
   function isArray(o) { //確認變數是否為陣列
       return Object.prototype.toString.call(o) == '[object Array]';
   }
@@ -22,24 +24,31 @@
               pack.rec = [data]
           }
           if (pack.rec.length) {
-              if (pack.rec[0].type.indexOf("history") != -1) {
-                  console.log(pack.rec[0])
-              }
-              pack.nu_code = nu_code
-              pack.db_name = db_name
-              let str = JSON.stringify(pack)
-              $.ajax({
-                  url: addr,
-                  type: 'POST',
-                  headers: {
-                      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                      'Content-Type': 'application/x-www-form-urlencoded'
-                  },
-                  data: "mode=nudb_put&arg=" + encodeURIComponent(str),
-                  success: function(r) {
-                      console.log(r)
+              let flag = 0
+              if (pack.rec[0].type == "posts&history" && db_name == "crome_crawler") {
+                  if (pack.rec[0].articleID != last_id) {
+                      last_id = pack.rec[0].articleID
+                  } else {
+                      flag = 1
                   }
-              })
+              }
+              if (!flag) {
+                  pack.nu_code = nu_code
+                  pack.db_name = db_name
+                  let str = JSON.stringify(pack)
+                  $.ajax({
+                      url: addr,
+                      type: 'POST',
+                      headers: {
+                          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                          'Content-Type': 'application/x-www-form-urlencoded'
+                      },
+                      data: "mode=nudb_put&arg=" + encodeURIComponent(str),
+                      success: function(r) {
+                          console.log(r)
+                      }
+                  })
+              }
           }
       })
   }

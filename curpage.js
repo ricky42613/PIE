@@ -1,3 +1,4 @@
+//youtube 頁面腳本
 (function() {
     'use strict';
     if (collect_list == undefined) {
@@ -28,6 +29,7 @@
                         }
                     })
                 }
+                return true
             }
         );
         document.addEventListener("contextmenu", function(e) {

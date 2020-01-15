@@ -639,8 +639,8 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
             if (request.db != 'fbmsg') {
                 arg.p = request.p
                 arg.ps = request.ps
-                arg.onlyfield = '@articleID:'
-                    // arg.matchmode = 'AndMatch'
+                arg.onlyfield = '@articleID:';
+                // arg.matchmode = 'AndMatch'
             }
 
             let str = JSON.stringify(arg)

@@ -1,3 +1,4 @@
+//google 搜尋結果
 (function() {
     'use strict';
     let collect_list = []
@@ -27,6 +28,7 @@
                     }
                 })
             }
+            return true
         }
     );
 

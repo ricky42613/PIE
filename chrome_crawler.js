@@ -1,3 +1,4 @@
+//記錄瀏覽紀錄
 (function() {
     function save_data(data, cb) {
         chrome.runtime.sendMessage({
