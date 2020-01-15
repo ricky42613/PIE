@@ -4,10 +4,7 @@
 <head>
     <title>New tab</title>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Unicat project">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="styles/bootstrap4/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.carousel.css">
     <link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
     <link rel="stylesheet" type="text/css" href="styles/main_styles.css">
@@ -20,126 +17,60 @@
 </head>
 
 <body>
-    <div class="super_container">
-        <header class="header">
-            <!-- Header Content -->
-            <div class="header_container">
-                <div class="container">
-                    <div class="row">
-                        <div class="col">
-                            <div class="header_content d-flex flex-row align-items-center justify-content-start">
-                                <nav class="main_nav_contaner ml-auto">
-                                    <ul class="main_nav" id="app_bar">
-                                        <li><a href="https://www.facebook.com/">Facebook</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a id="Logo" class="navbar-brand" href="#">New Tab</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" id="app_bar">
+                </ul>
             </div>
-            <!-- Header Search Panel -->
-        </header>
-        <!-- Menu -->
-        <div class="menu d-flex flex-column align-items-end justify-content-start text-right menu_mm trans_400">
-            <div class="menu_close_container">
-                <div class="menu_close">
-                    <div></div>
-                    <div></div>
-                </div>
+        </nav>
+    </div>
+    <div>
+        <form class="form-inline" style="padding: 0.5cm;">
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" class="form-control" id="search_key" placeholder="keyword">
             </div>
-            <div class="search">
-                <form action="#" class="header_search_form menu_mm">
-                    <input type="search" class="search_input menu_mm" placeholder="Search" required="required">
-                    <button class="header_search_button d-flex flex-column align-items-center justify-content-center menu_mm">
-                        <i class="fa fa-search menu_mm" aria-hidden="true"></i>
-                    </button>
-                </form>
-            </div>
+            <button type="button" class="search_btn btn btn-primary mb-2" style="margin-right: 5px;">Global</button>
+            <button type="button" class="search_btn btn btn-primary mb-2">History</button>
+        </form>
+    </div>
+    <div id="rst_page" style="width: 80%; padding: 0.5cm;display: none;">
+        <div id="result_list" class="list-group">
         </div>
-        <!-- Home -->
-        <div class="home">
-            <div class="home_slider_container">
-                <!-- Home Slider -->
-                <div class="owl-carousel owl-theme home_slider">
-                    <!-- Home Slider Item -->
-                    <div class="owl-item">
-                        <div class="home_slider_background" style="background-image:url(images/home_slider_1.jpg)"></div>
-                        <div class="home_slider_content">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col text-center">
-                                        <div class="home_slider_title">Smart Tab</div>
-                                        <div class="home_slider_subtitle">Search more things than google</div>
-                                        <div class="home_slider_form_container">
-                                            <form id="home_search_form_1" class="home_search_form d-flex flex-lg-row flex-column align-items-center justify-content-between">
-                                                <div class="d-flex flex-row align-items-center">
-                                                    <input type="search" id="search_key" class="home_search_input" placeholder="Keyword Search" required="required">
-                                                    <select id="search_type" class="dropdown_item_select home_search_input">
-                                                        <option value="google" selected="selected">Google</option>
-                                                        <option value="history">History</option>
-                                                        <option value="facebook">facebook</option>
-                                                    </select>
-                                                </div>
-                                                <button id="search" class="home_search_button">search</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Home Slider Item -->
-                </div>
-            </div>
-        </div>
-        <!-- Search result-->
-        <div id="search_rst" class="courses" style="display: none;">
-            <div class="section_background parallax-window" data-parallax="scroll" data-image-src="images/courses_background.jpg" data-speed="0.8"></div>
-            <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <div class="section_title_container text-center">
-                            <h2 class="section_title" id="result_name">Search result</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" id="prev" style="display: none;">
-                    <div class="col">
-                        <div class="courses_button trans_200"><a href="#">Previous</a></div>
-                    </div>
-                </div>
-                <div class="list-group" id="result_list">
-
-                </div>
-                <div class="row" id="next">
-                    <div class="col">
-                        <div class="courses_button trans_200"><a href="#">Next</a></div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li class="page-item" id="prev" style="display: none;"><a class="page-link">Previous</a></li>
+                <li class="page-item page-num"><a class="page-link" href="#">1</a></li>
+                <li class="page-item page-num"><a class="page-link" href="#">2</a></li>
+                <li class="page-item page-num"><a class="page-link" href="#">3</a></li>
+                <li class="page-item page-num"><a class="page-link" href="#">4</a></li>
+                <li class="page-item page-num"><a class="page-link" href="#">5</a></li>
+                <li class="page-item" id="next" style="display: block;"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="courses">
+        <div class="section_background parallax-window" data-parallax="scroll" data-image-src="images/courses_background.jpg" data-speed="0.8"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="section_title_container text-center">
+                        <h2 class="section_title">Most Visited</h2>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Top visit-->
-        <div class="courses">
-            <div class="section_background parallax-window" data-parallax="scroll" data-image-src="images/courses_background.jpg" data-speed="0.8"></div>
-            <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <div class="section_title_container text-center">
-                            <h2 class="section_title">Most Visited</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="row courses_row" id="courses_row1">
-                    <!-- Course -->
-                </div>
-                <div class="row courses_row" id="courses_row2">
-                    <!-- Course -->
-                </div>
+            <div class="row courses_row" id="courses_row1">
+                <!-- Course -->
+            </div>
+            <div class="row courses_row" id="courses_row2">
+                <!-- Course -->
             </div>
         </div>
     </div>
-
     <script src="js/jquery-3.2.1.min.js"></script>
     <script src="plugins/scrollmagic/ScrollMagic.min.js"></script>
     <script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
