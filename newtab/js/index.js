@@ -49,7 +49,7 @@ function make_rst(title, url, content, time, key) {
     let path_str = url_obj.protocol + "//" + url_obj.hostname + url_obj.pathname.replace(/\//g, " > ");
     let str = `<a href="${url}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">${newtitle}</h5>
+                        <h4 class="mb-1">${newtitle}</h5>
                         <small>${time}</small>
                     </div>
                     <small>${path_str}</small>
@@ -170,6 +170,7 @@ $(".search_btn").on('click', function(e) {
                     $('#result_list').append(make_rst(title, url, content, item.rec.time, key))
                 });
                 $('#rst_page').css({ "display": "block" });
+                $('#prev').css('display', 'none')
                 $('#rst_page').attr('page', '1')
                 mark_cur_page(1)
             })

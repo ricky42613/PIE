@@ -27,7 +27,6 @@ $(document).ready(function() {
     var menuActive = false;
     var menu = $('.menu');
     var burger = $('.hamburger');
-    var ctrl = new ScrollMagic.Controller();
 
     setHeader();
 

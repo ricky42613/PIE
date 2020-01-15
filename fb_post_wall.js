@@ -471,216 +471,219 @@
     }
 
     async function get_post(element, c_user, cb) { //處理貼文
-        if (element.find('.userContentWrapper').length == 0) {
-            let ft_ent = element.find('input[name="ft_ent_identifier"]').eq(0).attr('value') //articleID
-            let permission = element.find('div[data-hover="tooltip"],a[data-hover="tooltip"]').eq(0).attr('aria-label') //貼文權限
-            let content = 0 == element.find('div[data-testid="post_message"]').length ? "" : element.find('div[data-testid="post_message"]')[0].textContent
-            let author = element.find('img').eq(0).attr('aria-label')
-            let reaction_url = 'https://www.facebook.com/ufi/reaction/profile/browser/?ft_ent_identifier=' + ft_ent + '&av=' + c_user
-            let data = {
-                articleID: ft_ent,
-                permission: permission,
-                content: content,
-                author: author,
-                time: current_time(),
-                type: "posts&history" //use in search fb post and history
-            }
-            let post_frame = element.closest("._5jmm")
-            if ($(post_frame)[0].dataset.hasOwnProperty('timestamp')) {
-                let post_timestamp = parseInt($(post_frame)[0].dataset.timestamp) * 1000
-                let unixTimestamp = new Date(post_timestamp)
-                data.post_date = date2str(unixTimestamp) //發文時間
-            } else if ($(post_frame)[0].dataset.hasOwnProperty('time')) {
-                let post_timestamp = parseInt($(post_frame)[0].dataset.time) * 1000
-                let unixTimestamp = new Date(post_timestamp)
-                data.post_date = date2str(unixTimestamp) //發文時間
-            }
+        if (element.find('.userContentWrapper').length) {
+            element = $('.userContentWrapper').eq(0)
+        }
+        // if (element.find('.userContentWrapper').length == 0) {
+        let ft_ent = element.find('input[name="ft_ent_identifier"]').eq(0).attr('value') //articleID
+        let permission = element.find('div[data-hover="tooltip"],a[data-hover="tooltip"]').eq(0).attr('aria-label') //貼文權限
+        let content = 0 == element.find('div[data-testid="post_message"]').length ? "" : element.find('div[data-testid="post_message"]')[0].textContent
+        let author = element.find('img').eq(0).attr('aria-label')
+        let reaction_url = 'https://www.facebook.com/ufi/reaction/profile/browser/?ft_ent_identifier=' + ft_ent + '&av=' + c_user
+        let data = {
+            articleID: ft_ent,
+            permission: permission,
+            content: content,
+            author: author,
+            time: current_time(),
+            type: "posts&history" //use in search fb post and history
+        }
+        let post_frame = element.closest("._5jmm")
+        if ($(post_frame)[0].dataset.hasOwnProperty('timestamp')) {
+            let post_timestamp = parseInt($(post_frame)[0].dataset.timestamp) * 1000
+            let unixTimestamp = new Date(post_timestamp)
+            data.post_date = date2str(unixTimestamp) //發文時間
+        } else if ($(post_frame)[0].dataset.hasOwnProperty('time')) {
+            let post_timestamp = parseInt($(post_frame)[0].dataset.time) * 1000
+            let unixTimestamp = new Date(post_timestamp)
+            data.post_date = date2str(unixTimestamp) //發文時間
+        }
 
-            let curcmtlist = await $(element).find("._7791").children("li").map((idx, cmt) => { //已展開的留言列表
-                let subdata = handle_cmt(cmt)
-                let cur_replys = $(cmt).find("[data-testid='UFI2CommentsList/root_depth_1'] > ul > li").map((index, reply) => {
-                    let reply_data = handle_reply(reply)
-                    return reply_data
-                }).get()
-                save_data(cur_replys, r => {
+        let curcmtlist = await $(element).find("._7791").children("li").map((idx, cmt) => { //已展開的留言列表
+            let subdata = handle_cmt(cmt)
+            let cur_replys = $(cmt).find("[data-testid='UFI2CommentsList/root_depth_1'] > ul > li").map((index, reply) => {
+                let reply_data = handle_reply(reply)
+                return reply_data
+            }).get()
+            save_data(cur_replys, r => {
+                console.log(r)
+            })
+            return subdata
+        }).get()
+        get_post_link(element, ft_ent, (url) => { //文章連結
+            data.post_link = url
+            if (url.length != 0 && element.find("video").length != 0) {
+                save_video(url, (video) => {
+                    data.video_link = video
+                    console.log(video)
+                })
+            }
+        })
+        element.find('._3x-2 img').map((idx, item) => {
+            let info = {}
+            info.src = item.src
+            info.articleID = data.articleID
+            info.type = "posts_img"
+            convertImgToBase64(item.src, function(base64Img) {
+                info.img64 = base64Img
+                console.log(info)
+                save_data(info, r => {
                     console.log(r)
                 })
-                return subdata
-            }).get()
-            get_post_link(element, ft_ent, (url) => { //文章連結
-                data.post_link = url
-                if (url.length != 0 && element.find("video").length != 0) {
-                    save_video(url, (video) => {
-                        data.video_link = video
-                        console.log(video)
-                    })
-                }
             })
-            element.find('._3x-2 img').map((idx, item) => {
-                let info = {}
-                info.src = item.src
-                info.articleID = data.articleID
-                info.type = "posts_img"
-                convertImgToBase64(item.src, function(base64Img) {
-                    info.img64 = base64Img
-                    console.log(info)
-                    save_data(info, r => {
-                        console.log(r)
-                    })
-                })
-            }).get(); //handle normal image
+        }).get(); //handle normal image
 
-            element.find('._3chq').map((idx, item) => {
-                let info = {}
-                info.src = item.src
-                info.articleID = data.articleID
-                info.type = "posts_img"
-                convertImgToBase64(item.src, function(base64Img) {
-                    info.img64 = base64Img
-                    console.log(info)
-                    save_data(info, r => {
-                        console.log(r)
-                    })
+        element.find('._3chq').map((idx, item) => {
+            let info = {}
+            info.src = item.src
+            info.articleID = data.articleID
+            info.type = "posts_img"
+            convertImgToBase64(item.src, function(base64Img) {
+                info.img64 = base64Img
+                console.log(info)
+                save_data(info, r => {
+                    console.log(r)
                 })
-            }).get(); //handle video image
-            if (element.find('._5r69').length) {
-                //share
-                let share = element.find('._5r69')[0].innerHTML
-                let str = JSON.stringify({
-                    "tn": "C"
-                })
-                let from = $(share).find("[data-ft*='" + str + "']")
-                data.from = from[0].innerText //被分享文章作者
-                data.from_link = from[0].href //作者連結
-                if ($(share).find('div[data-testid="post_message"] .hidden_elem').length != 0) {
-                    data.shareContent = $(share).find('div[data-testid="post_message"] .hidden_elem')[0].innerHTML
-                } else if ($(share).find('div[data-testid="post_message"]').length != 0) {
-                    data.shareContent = $(share).find('div[data-testid="post_message"]')[0].innerHTML
-                }
-                data.sharePermission = $(share).find('.fbStreamPrivacy').eq(0).attr('aria-label') //被分享文章權限
+            })
+        }).get(); //handle video image
+        if (element.find('._5r69').length) {
+            //share
+            let share = element.find('._5r69')[0].innerHTML
+            let str = JSON.stringify({
+                "tn": "C"
+            })
+            let from = $(share).find("[data-ft*='" + str + "']")
+            data.from = from[0].innerText //被分享文章作者
+            data.from_link = from[0].href //作者連結
+            if ($(share).find('div[data-testid="post_message"] .hidden_elem').length != 0) {
+                data.shareContent = $(share).find('div[data-testid="post_message"] .hidden_elem')[0].innerHTML
+            } else if ($(share).find('div[data-testid="post_message"]').length != 0) {
+                data.shareContent = $(share).find('div[data-testid="post_message"]')[0].innerHTML
             }
-            if (element.find('._3ekx').length && element.find('._3ekx')[0].innerText != "") {
-                //外部連結 ex新聞
-                let news = element.find('._3ekx')[0].innerHTML
-                data.Newsfrom = $(news).find('._2iau').length == 0 ? "" : $(news).find('._2iau')[0].innerText
-                data.Newstitle = $(news).find('._5s6c')[0].innerText
-                if ($(news).find('_3bt9').length) {
-                    data.subtitle = $(news).find('._3bt9')[0].innerText
-                }
-                data.news_href = element.find('._3ekx')[0].lastChild.href
+            data.sharePermission = $(share).find('.fbStreamPrivacy').eq(0).attr('aria-label') //被分享文章權限
+        }
+        if (element.find('._3ekx').length && element.find('._3ekx')[0].innerText != "") {
+            //外部連結 ex新聞
+            let news = element.find('._3ekx')[0].innerHTML
+            data.Newsfrom = $(news).find('._2iau').length == 0 ? "" : $(news).find('._2iau')[0].innerText
+            data.Newstitle = $(news).find('._5s6c')[0].innerText
+            if ($(news).find('_3bt9').length) {
+                data.subtitle = $(news).find('._3bt9')[0].innerText
             }
-            get_reaciton_cnt(reaction_url, (infolist) => {
-                    infolist.map((item, idx) => {
-                        if (item.type == 0) {
-                            data.total_reactions = item.cnt
-                        } else if (item.type == 1) { //1:讚
-                            data.like_cnt = item.cnt
-                        } else if (item.type == 2) { //2:愛心
-                            data.heart_cnt = item.cnt
-                        } else if (item.type == 3) { //3:哇
-                            data.suprise_cnt = item.cnt
-                        } else if (item.type == 4) { //4:哈
-                            data.laugh_cnt = item.cnt
-                        } else if (item.type == 7) { //7:嗚
-                            data.sad_cnt = item.cnt
-                        } else if (item.type == 8) { //8:怒
-                            data.angry_cnt = item.cnt
-                        }
-                    })
+            data.news_href = element.find('._3ekx')[0].lastChild.href
+        }
+        get_reaciton_cnt(reaction_url, (infolist) => {
+                infolist.map((item, idx) => {
+                    if (item.type == 0) {
+                        data.total_reactions = item.cnt
+                    } else if (item.type == 1) { //1:讚
+                        data.like_cnt = item.cnt
+                    } else if (item.type == 2) { //2:愛心
+                        data.heart_cnt = item.cnt
+                    } else if (item.type == 3) { //3:哇
+                        data.suprise_cnt = item.cnt
+                    } else if (item.type == 4) { //4:哈
+                        data.laugh_cnt = item.cnt
+                    } else if (item.type == 7) { //7:嗚
+                        data.sad_cnt = item.cnt
+                    } else if (item.type == 8) { //8:怒
+                        data.angry_cnt = item.cnt
+                    }
                 })
-                //各情緒名單
-            data.like_list = await getActionList(reaction_url, 1)
-            data.heart_list = await getActionList(reaction_url, 2)
-            data.suprise_list = await getActionList(reaction_url, 3)
-            data.laugh_list = await getActionList(reaction_url, 4)
-            data.sad_list = await getActionList(reaction_url, 7)
-            data.angry_list = await getActionList(reaction_url, 8)
-            let link = element.find('a[data-testid="UFI2CommentsCount/root"]')
-            let cmt_link = link.length == 0 ? "" : link[0].href.replace("www", "mbasic")
-            let comment = await getcomment(cmt_link)
-            let comment_list = await comment.map((item, idx) => { //所以留言(包括未展開的留言)
-                let data2 = {}
-                let inner = item.innerHTML
-                data2.type = "comment"
-                data2.commentID = item.id
-                data2.articleID = ft_ent
-                let replyitem = $(inner).find("[id*='comment_replies_more'] a")
-                let time = $(inner).find("abbr")[0].innerText
-                if (lang == 'en') {
-                    data2.time = handletime_en(time)
-                } else {
-                    data2.time = handletime(time)
+            })
+            //各情緒名單
+        data.like_list = await getActionList(reaction_url, 1)
+        data.heart_list = await getActionList(reaction_url, 2)
+        data.suprise_list = await getActionList(reaction_url, 3)
+        data.laugh_list = await getActionList(reaction_url, 4)
+        data.sad_list = await getActionList(reaction_url, 7)
+        data.angry_list = await getActionList(reaction_url, 8)
+        let link = element.find('a[data-testid="UFI2CommentsCount/root"]')
+        let cmt_link = link.length == 0 ? "" : link[0].href.replace("www", "mbasic")
+        let comment = await getcomment(cmt_link)
+        let comment_list = await comment.map((item, idx) => { //所以留言(包括未展開的留言)
+            let data2 = {}
+            let inner = item.innerHTML
+            data2.type = "comment"
+            data2.commentID = item.id
+            data2.articleID = ft_ent
+            let replyitem = $(inner).find("[id*='comment_replies_more'] a")
+            let time = $(inner).find("abbr")[0].innerText
+            if (lang == 'en') {
+                data2.time = handletime_en(time)
+            } else {
+                data2.time = handletime(time)
+            }
+            if (data2.time.indexOf('undefined') != -1) {
+                console.log(cmt_link)
+                console.log(time)
+                console.log(data2.time)
+            }
+            let target_id = item.id
+            try {
+                data2.speaker = $(inner).find("h3")[0].innerText
+                data2.content = $(inner).find("h3")[0].nextSibling.innerText
+                let parent = $(inner).find("h3")[0].parentNode
+                if ($(parent).children().length > 3) {
+                    let attach = $(inner).find("h3")[0].nextSibling.nextSibling
+                    data2.media = attach.find("img").map((i, subitem) => {
+                        return subitem.src
+                    })
                 }
-                if (data2.time.indexOf('undefined') != -1) {
-                    console.log(cmt_link)
-                    console.log(time)
-                    console.log(data2.time)
-                }
-                let target_id = item.id
-                try {
-                    data2.speaker = $(inner).find("h3")[0].innerText
-                    data2.content = $(inner).find("h3")[0].nextSibling.innerText
-                    let parent = $(inner).find("h3")[0].parentNode
-                    if ($(parent).children().length > 3) {
-                        let attach = $(inner).find("h3")[0].nextSibling.nextSibling
-                        data2.media = attach.find("img").map((i, subitem) => {
-                            return subitem.src
+            } catch (e) {}
+            if (replyitem.length != 0) {
+                let reply_link = replyitem[0].href.replace("www", "mbasic")
+                get_reply(reply_link, target_id, (reply_list) => { //所有回覆(包括未展開)
+                    if (reply_list.length != 0) {
+                        let replys = reply_list.map((item, idx) => {
+                            let info = {}
+                            try {
+                                let parent = $(item).find("h3")[0].parentNode
+                                if ($(parent).children().length > 3) {
+                                    let attach = $(item).find("h3")[0].nextSibling.nextSibling
+                                    info.media = $(attach).find("img").map((i, subitem) => {
+                                        return subitem.src
+                                    }).get()
+                                }
+                                info.commentID = data2.commentID
+                                info.articleID = data2.articleID
+                                info.speaker = $(item).find("h3")[0].innerText
+                                info.content = $(item).find("h3")[0].nextSibling.innerText
+                                let time = $(item).find("abbr")[0].innerText
+                                if (lang == 'en') {
+                                    info.time = handletime_en(time)
+                                } else {
+                                    info.time = handletime(time)
+                                }
+                                if (info.time.indexOf('undefined') != -1) {
+                                    console.log(info.time)
+                                    console.log(time)
+                                }
+                                info.type = "reply"
+                            } catch (e) {
+                                console.log(e)
+                            }
+                            return info
+                        })
+                        save_data(replys, r => {
+                            console.log(r)
                         })
                     }
-                } catch (e) {}
-                if (replyitem.length != 0) {
-                    let reply_link = replyitem[0].href.replace("www", "mbasic")
-                    get_reply(reply_link, target_id, (reply_list) => { //所有回覆(包括未展開)
-                        if (reply_list.length != 0) {
-                            let replys = reply_list.map((item, idx) => {
-                                let info = {}
-                                try {
-                                    let parent = $(item).find("h3")[0].parentNode
-                                    if ($(parent).children().length > 3) {
-                                        let attach = $(item).find("h3")[0].nextSibling.nextSibling
-                                        info.media = $(attach).find("img").map((i, subitem) => {
-                                            return subitem.src
-                                        }).get()
-                                    }
-                                    info.commentID = data2.commentID
-                                    info.articleID = data2.articleID
-                                    info.speaker = $(item).find("h3")[0].innerText
-                                    info.content = $(item).find("h3")[0].nextSibling.innerText
-                                    let time = $(item).find("abbr")[0].innerText
-                                    if (lang == 'en') {
-                                        info.time = handletime_en(time)
-                                    } else {
-                                        info.time = handletime(time)
-                                    }
-                                    if (info.time.indexOf('undefined') != -1) {
-                                        console.log(info.time)
-                                        console.log(time)
-                                    }
-                                    info.type = "reply"
-                                } catch (e) {
-                                    console.log(e)
-                                }
-                                return info
-                            })
-                            save_data(replys, r => {
-                                console.log(r)
-                            })
-                        }
-                    })
-                    return data2
-                } else {
-                    return data2
-                }
-            })
-            save_data(curcmtlist, (r) => {
-                save_data(comment_list, (r) => {
-                    console.log(r)
-                    cb(data)
                 })
+                return data2
+            } else {
+                return data2
+            }
+        })
+        save_data(curcmtlist, (r) => {
+            save_data(comment_list, (r) => {
+                console.log(r)
+                cb(data)
             })
-        } else {
-            cb({})
-        }
+        });
+        // } else {
+        //     cb({})
+        // }
     }
     window.addEventListener("load", function(event) {
         lang = $('html')[0].lang

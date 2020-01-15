@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reload Tabs</title>
+    <link rel="stylesheet" type="text/css" href="popup.css">
+    <script src="../jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            min-width: 150px;
+            /* your desired width */
+            max-width: 100%;
+            min-height: 100px;
+            max-height: 100%;
+            position: relative;
+        }
+        
+        label {
+            left: 30px
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 30px;
+            height: 17px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 13px;
+            width: 13px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+        
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        
+        input:checked+.slider:before {
+            -webkit-transform: translateX(13px);
+            -ms-transform: translateX(13px);
+            transform: translateX(13px);
+        }
+        /* Rounded sliders */
+        
+        .slider.round {
+            border-radius: 17px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        #logout {
+            bottom: 0px;
+        }
+        
+        form {
+            display: inline-block;
+        }
+        
+        .form-group {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        
+        #todo {
+            margin: 0 auto;
+            width: 250px;
+        }
+    </style>
+</head>
+
+<body style="position:relative">
+    <div id="my_site_link"></div>
+    <a id="fb_analy" style="margin-left: 30px">facebook貼文分析</a>
+    <br/>
+    <a id="work_queue" style="margin-left: 30px">Working Queue</a>
+    <br/>
+    <label align="left" class="switch">
+    <input id="myonoffswitch" type="checkbox">
+    <span class="slider round"></span>
+  </label>
+    <span style="margin-left: 30px">Auto Parse</span>
+    <br/>
+    <label class="switch">
+    <input id="fbmsg" type="checkbox">
+    <span class="slider round"></span>
+  </label>
+    <span style="margin-left: 30px">fb message</span>
+    <br/>
+    <label align="left" class="switch">
+    <input id="fb_bkup" type="checkbox">
+    <span class="slider round"></span>
+  </label>
+    <span style="margin-left: 30px">backup button</span>
+    <br/>
+    <label align="left" class="switch">
+    <input id="fb_postwall" type="checkbox">
+    <span class="slider round"></span>
+  </label>
+    <span style="margin-left: 30px">fb postwall</span>
+    <br/>
+    <label align="left" class="switch">
+    <input id="fb_searchrst" type="checkbox">
+    <span class="slider round"></span>
+  </label>
+    <span style="margin-left: 30px">fb search result</span>
+    <br/>
+    <div class="form-group">
+        <h1>TAG <small>List</small></h1>
+        <form role="form" class="col-xs-8">
+            <input type="text" class="form-control" placeholder="Your Task" name="task">
+        </form>
+        <button id="add" type="button" class="btn btn btn-primary">Add</button>
+    </div>
+    <div style="margin:30px;height:200px;overflow-x:hidden;overflow-y:auto;border:2px #ccc solid;border-radius:10px;background-color:#eee;">
+        <ul class="list-unstyled" id="todo">
+        </ul>
+    </div>
+    <br/>
+    <div style="bottom:0px;text-align:center">
+        <button class="btn btn-default" id="logout">Logout</button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
