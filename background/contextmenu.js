@@ -2,8 +2,7 @@
     var imgelem
     let taglist
     if (localStorage.getItem("taglist") == null) {
-        taglist = [
-            {
+        taglist = [{
                 "name": "無",
                 "children": []
             },
@@ -38,7 +37,7 @@
     }
 
     chrome.runtime.onMessage.addListener(
-        async function (request, sender, sendResponse) {
+        async function(request, sender, sendResponse) {
             if ("img" == request.type) {
                 imgdata = request.img
                 let tmp = $.parseHTML(request.element)[0]
@@ -53,7 +52,7 @@
     );
 
     function send_to_nucloud(url, data) {
-        $.get(url + '?mode=get_url', function (r) {
+        $.get(url + '?mode=get_url', function(r) {
             let addr = r.url + 'Site_Prog/API/plugin_api.php'
             data.title = data.title.replace(/[/\\?%*:|"<>]/g, '-');
             $.ajax({
@@ -64,7 +63,7 @@
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: "mode=upload_json&arg=" + encodeURIComponent((JSON.stringify(data))),
-                success: function (r) {
+                success: function(r) {
                     console.log(r)
                 }
             })
@@ -93,7 +92,7 @@
     }
 
     function snapshot(item) { //處理螢幕截圖
-        chrome.tabs.captureVisibleTab(null, {}, function (data) {
+        chrome.tabs.captureVisibleTab(null, {}, function(data) {
             if (nu_code.length != 0 && nu_code != undefined) {
                 let info = {
                     src_url: item.src_url,
@@ -120,7 +119,7 @@
             if (info.parentMenuItemId == 'save_img' || info.parentMenuItemId.indexOf('tag_img')) { //image
                 var img = new Image();
                 img.src = info.srcUrl;
-                img.onload = async function () {
+                img.onload = async function() {
                     let b64 = await getBase64Image(img)
                     data.content = b64.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
                     data.src_url = info.srcUrl
@@ -129,16 +128,16 @@
                     save_tag(data)
                 }
             }
-            if (info.parentMenuItemId == 'term' || info.parentMenuItemId.indexOf('tag_term')!=-1) { //selection text
+            if (info.parentMenuItemId == 'term' || info.parentMenuItemId.indexOf('tag_term') != -1) { //selection text
                 data.content = Base64.encode(info.selectionText)
                 data.title = info.selectionText + '(' + data.tag + 'text)'
                 data.fe = '.txt'
                 save_tag(data)
             }
-            if (info.parentMenuItemId == 'save_url' || info.parentMenuItemId.indexOf('tag_url')!=-1) { //link
+            if (info.parentMenuItemId == 'save_url' || info.parentMenuItemId.indexOf('tag_url') != -1) { //link
                 data.content = window.btoa(info.linkUrl)
                 data.fe = '.url'
-                $.get(info.linkUrl, function (r) {
+                $.get(info.linkUrl, function(r) {
                     let end = r.indexOf('</title>')
                     let tmptitle = r.slice(0, end)
                     let start = tmptitle.lastIndexOf('>')
@@ -148,15 +147,15 @@
                     console.log(e)
                 })
             }
-            if (info.parentMenuItemId == "snapshot" || info.parentMenuItemId.indexOf("tag_shot")!=-1) { //螢幕截圖
+            if (info.parentMenuItemId == "snapshot" || info.parentMenuItemId.indexOf("tag_shot") != -1) { //螢幕截圖
                 data.title = tab.title + '(' + data.tag + 'img)'
                 snapshot(data)
             }
-            if (info.parentMenuItemId == "edit_bm" || info.parentMenuItemId.indexOf("tag_edit_bm")!=-1) { //加入書籤
+            if (info.parentMenuItemId == "edit_bm" || info.parentMenuItemId.indexOf("tag_edit_bm") != -1) { //加入書籤
                 chrome.tabs.query({
                     active: true,
                     currentWindow: true
-                }, function (tabs) {
+                }, function(tabs) {
                     data.title = tabs[0].title
                     data.fe = ".url"
                     data.tag = data.tag + "_bookmark"
@@ -168,14 +167,14 @@
                     })
                 })
             }
-            if (info.parentMenuItemId == "collect_youtube" || info.parentMenuItemId.indexOf("tag_yt")!=-1) { //utube video
+            if (info.parentMenuItemId == "collect_youtube" || info.parentMenuItemId.indexOf("tag_yt") != -1) { //utube video
                 chrome.tabs.query({
                     active: true,
                     currentWindow: true
-                }, function (tabs) {
+                }, function(tabs) {
                     chrome.tabs.sendMessage(tabs[0].id, {
                         type: 'get_collect_list'
-                    }, function (response) {
+                    }, function(response) {
                         if (nu_code != undefined && nu_code.length != 0) {
                             let datalist = response.map((item, idx) => {
                                 let tmp = {}
@@ -208,7 +207,7 @@
             chrome.tabs.query({
                 active: true,
                 currentWindow: true
-            }, function (tabs) {
+            }, function(tabs) {
                 chrome.tabs.sendMessage(tabs[0].id, {
                     type: 'click_all'
                 })
@@ -217,9 +216,24 @@
             chrome.tabs.query({
                 active: true,
                 currentWindow: true
-            }, function (tabs) {
+            }, function(tabs) {
                 chrome.tabs.sendMessage(tabs[0].id, {
                     type: 'cancel_all'
+                })
+            })
+        } else if (info.menuItemId == "join_db") {
+            chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            }, function(tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: 'get_url_list'
+                }, function(response) {
+                    if (nu_code != undefined && nu_code.length != 0) {
+                        send_to_nudb('http://' + domain + '/Site_Prog/API/plugin_api.php', response, nu_code, "link_record")
+                    } else {
+                        alert('plz login first')
+                    }
                 })
             })
         }
@@ -227,8 +241,8 @@
 
     chrome.contextMenus.onClicked.addListener(onClickHandler);
 
-    chrome.runtime.onInstalled.addListener(function (details) {
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    chrome.runtime.onInstalled.addListener(function(details) {
+        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             if (request.type == "add_tag") { //新增標籤
                 sendResponse("ok")
                 taglist.push({
@@ -236,7 +250,7 @@
                     "children": []
                 })
                 localStorage.setItem("taglist", JSON.stringify(taglist))
-                //image
+                    //image
                 chrome.contextMenus.create({
                     title: request.name,
                     parentId: "save_img",
@@ -411,11 +425,11 @@
         });
         //screenshot
         chrome.contextMenus.create({
-            title: 'snapshot',
-            id: 'snapshot',
-            contexts: ['all']
-        })
-        //bookmark
+                title: 'snapshot',
+                id: 'snapshot',
+                contexts: ['all']
+            })
+            //bookmark
         chrome.contextMenus.create({
             title: '新增書籤',
             id: 'edit_bm',
@@ -432,12 +446,12 @@
 
         //utube video
         chrome.contextMenus.create({
-            title: '收藏選取結果',
-            id: 'collect_youtube',
-            contexts: ['all'],
-            documentUrlPatterns: ["https://*.youtube.com/*", "https://www.google.com/*"]
-        })
-        //handle all videos
+                title: '收藏選取結果',
+                id: 'collect_youtube',
+                contexts: ['all'],
+                documentUrlPatterns: ["https://*.youtube.com/*", "https://www.google.com/*"]
+            })
+            //handle all videos
         chrome.contextMenus.create({
             title: "全選",
             id: "yt_clickall",
@@ -449,6 +463,12 @@
             id: "yt_cancelall",
             contexts: ["all"],
             documentUrlPatterns: ["https://*.youtube.com/*", "https://www.google.com/*"]
+        })
+        chrome.contextMenus.create({
+            title: "加入link DB",
+            id: "join_db",
+            contexts: ["all"],
+            documentUrlPatterns: ["https://www.google.com/*"]
         })
         taglist.forEach((item, idx) => {
             let key = item.name
